@@ -5,7 +5,7 @@
 using namespace std;
 using namespace sf;
 
-#define Height  700
+#define Height  720
 #define Width  1080
 class TileMap : public sf::Drawable, public sf::Transformable
 {
@@ -16,7 +16,6 @@ public:
         // load the tileset texture
         if (!m_tileset.loadFromFile(tileset))
             return false;
-
 
         // resize the vertex array to fit the level size
         m_vertices.setPrimitiveType(sf::Quads);
@@ -84,7 +83,6 @@ struct Rectangle {
 };
 
 int main() {
-  sf::Color BgColor (89,88,86,255);
 
 
   RenderWindow window(VideoMode(Width, Height), "Blokus");
@@ -117,10 +115,10 @@ int main() {
           7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
       };
 TileMap map;
+sf::View view;
 
 
-
-if (!map.load("src/tileset.png", sf::Vector2u(24, 24), level, 24, 24, (((Width/2) - (24*24)/2 )),(Height - (24*24))))
+if (!map.load("tileset.png", sf::Vector2u(16, 16), level, 24, 24,Width/2 - (20*32)/2,Height/2- (20*32)/2))
       {  return -1;}
 
   while (window.isOpen()) {
@@ -133,6 +131,14 @@ if (!map.load("src/tileset.png", sf::Vector2u(24, 24), level, 24, 24, (((Width/2
       }
 
       if (event.type == Event::KeyPressed) {
+        switch (event.key.code) {
+      	  case Keyboard::Right:
+        view.reset(sf::FloatRect(Width/2 - (20*32)/2 , Height/2- (20*32)/2, 600, 384));
+      break;
+        case Keyboard::Left:
+        view.reset(sf::FloatRect(Width/2 - (20*32)/2 - 216, Height/2- (20*32)/2, 600, 384));
+        break;
+      }
 
       }
 
@@ -142,9 +148,13 @@ if (!map.load("src/tileset.png", sf::Vector2u(24, 24), level, 24, 24, (((Width/2
       if (event.type == sf::Event::MouseButtonPressed) {
       }
     }
+    sf::CircleShape circle(50);
+    circle.setFillColor(sf::Color::Blue);
 
     // draw it
-    window.clear(BgColor);
+    window.setView(view);
+    window.clear(Color::White);
+
     window.draw(map);
 
     window.display();
