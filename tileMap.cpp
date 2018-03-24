@@ -59,4 +59,5 @@ private:
 
     sf::VertexArray m_vertices;
     sf::Texture m_tileset;
+
 };
