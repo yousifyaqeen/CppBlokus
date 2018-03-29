@@ -15,8 +15,8 @@ using namespace sf;
 #define MapSize 24
 #define MapOffSetPosX Width/2 - (MapSize*tileWidth)/2
 #define MapOffSetPosY Height/2 - (MapSize*tileHeight)/2
-#include "tileMap.cpp"
 #define OutLineSize 1.0
+#include "tileMap.cpp"
 
 
 
@@ -30,52 +30,49 @@ struct Rectangle {
 
 int main() {
   sf::Font font;
-    if (!font.loadFromFile("src/RobotoMono-Regular.ttf"))
-        return EXIT_FAILURE;
+  if (!font.loadFromFile("src/RobotoMono-Regular.ttf"))
+      return EXIT_FAILURE;
 
-        TileMap p1hand;
-        TileMap p2hand;
-        TileMap p3hand;
-        TileMap p4hand;
   TileMap map;
-  #include "map.map"
-  #include "p1hand.map"
+   int level[] =
+      {
+        #include "map.map"
 
-  if (!map.load("src/tileset20m.png", sf::Vector2u(tileWidth, tileHeight), level, MapSize, MapSize, MapOffSetPosX ,MapOffSetPosY))
-        {  return -1;}
+            };
+
+
+
 
   RenderWindow window(VideoMode(Width, Height), "Blokus");
+//-----------------------------------------------------------------------------------------
+  //Initialisation des variables concernantes les zones des joueurs
+  Rectangle pAreas [4] ;
+
+  pAreas[0].x =OutLineSize;
+  pAreas[0].y =OutLineSize;
+  pAreas[0].width=MapOffSetPosX-OutLineSize;
+  pAreas[0].height=Height/2-OutLineSize;
+  pAreas[0].color= Color(250, 177, 160,255);
+
+  pAreas[1].x =0;
+  pAreas[1].y =Height/2 +OutLineSize;
+  pAreas[1].width=MapOffSetPosX;
+  pAreas[1].height=Height/2-OutLineSize;
+  pAreas[1].color= Color(116, 185, 255,255);
+
+  pAreas[2].x =MapOffSetPosX + (MapSize*tileWidth)+OutLineSize ;
+  pAreas[2].y =OutLineSize;
+  pAreas[2].width=MapOffSetPosX-OutLineSize;
+  pAreas[2].height=Height/2-OutLineSize;
+  pAreas[2].color= Color(85, 239, 196,255);
 
 
-  Rectangle p1Area;
-  p1Area.x =OutLineSize;
-  p1Area.y =OutLineSize;
-  p1Area.width=MapOffSetPosX-OutLineSize;
-  p1Area.height=Height/2-OutLineSize;
-  p1Area.color= Color(250, 177, 160,255);
-
-  Rectangle p2Area;
-  p2Area.x =0;
-  p2Area.y =Height/2 +OutLineSize;
-  p2Area.width=MapOffSetPosX;
-  p2Area.height=Height/2-OutLineSize;
-  p2Area.color= Color(116, 185, 255,255);
-
-  Rectangle p3Area;
-  p3Area.x =MapOffSetPosX + (MapSize*tileWidth)+OutLineSize ;
-  p3Area.y =OutLineSize;
-  p3Area.width=MapOffSetPosX-OutLineSize;
-  p3Area.height=Height/2-OutLineSize;
-  p3Area.color= Color(85, 239, 196,255);
-
-
-  Rectangle p4Area;
-  p4Area.x =MapOffSetPosX + (MapSize*tileWidth)+OutLineSize;
-  p4Area.y =Height/2+OutLineSize;
-  p4Area.width=MapOffSetPosX-OutLineSize;
-  p4Area.height=Height/2-OutLineSize;
-  p4Area.color= Color(255, 234, 167,255);
-
+  pAreas[3].x =MapOffSetPosX + (MapSize*tileWidth)+OutLineSize;
+  pAreas[3].y =Height/2+OutLineSize;
+  pAreas[3].width=MapOffSetPosX-OutLineSize;
+  pAreas[3].height=Height/2-OutLineSize;
+  pAreas[3].color= Color(255, 234, 167,255);
+//---------------------------------------------------
   Rectangle Header;
   Header.x =MapOffSetPosX+OutLineSize;
   Header.y =OutLineSize;
@@ -90,40 +87,57 @@ int main() {
   Footer.height=Height - MapOffSetPosY+MapSize*tileHeight;
   Footer.color= Color(sf::Color BgColor);
 
+  //*********************************************************************************************************
 
 
   sf::Text title("Blokus", font, 50);
   title.setPosition(Vector2f(((Width/2 - title.getLocalBounds().width/2)),0.0));
+//*********************************************************************************************************
+  sf::Text PlayerName[4];
 
-  sf::Text p1("player1", font, 20);
-  p1.setPosition(Vector2f(p1Area.width/2 - p1.getLocalBounds().width/2,0.0));
+  for(int i=0 ; i<=3;i++){
 
-  sf::Text p2("player2", font, 20);
-  p2.setPosition(Vector2f(p2Area.width/2 - p2.getLocalBounds().width/2,p2Area.y + p2.getLocalBounds().height/2 ));
+    PlayerName[i].setString("player");
+    PlayerName[i].setFont(font);
+    PlayerName[i].setCharacterSize (20);
+  }
 
-  sf::Text p3("player3", font, 20);
-  p3.setPosition(Vector2f((p3Area.x) + (p3Area.width/2) - p3.getLocalBounds().width/2,0.0));
+  PlayerName[0].setPosition(Vector2f(pAreas[0].width/2 - PlayerName[0].getLocalBounds().width/2,0.0));
+  PlayerName[1].setPosition(Vector2f(pAreas[1].width/2 - PlayerName[1].getLocalBounds().width/2,pAreas[1].y + PlayerName[1].getLocalBounds().height/2 ));
+  PlayerName[2].setPosition(Vector2f((pAreas[2].x) + (pAreas[2].width/2) - PlayerName[2].getLocalBounds().width/2,0.0));
+  PlayerName[3].setPosition(Vector2f((pAreas[3].x) + (pAreas[3].width/2) - PlayerName[3].getLocalBounds().width/2,pAreas[3].y + PlayerName[3].getLocalBounds().height/2 ));
+//****************************************************************************************************
+  TileMap playerHand[4];
 
-  sf::Text p4("player4", font, 20);
-  p4.setPosition(Vector2f((p4Area.x) + (p4Area.width/2) - p4.getLocalBounds().width/2,p4Area.y + p4.getLocalBounds().height/2 ));
-
-  if (!p1hand.load("src/ptiles.png", sf::Vector2u(ptileWidth, ptileHeight), p1handM, 23, 12, p1Area.width/2-(ptileWidth*23)/2 ,p1Area.height - ptileHeight*12 -10))
+  int p1handM[] =
+    {
+      #include "p1hand.map"
+    };
+    if (!map.load("src/tileset20m.png", sf::Vector2u(tileWidth, tileHeight), level, MapSize, MapSize, MapOffSetPosX ,MapOffSetPosY))
         {  return -1;}
-        if (!p2hand.load("src/ptiles.png", sf::Vector2u(ptileWidth, ptileHeight), p1handM, 23, 12, p2Area.width/2-(ptileWidth*23)/2 ,p2Area.y + p2Area.height - ptileHeight*12 -10))
-              {  return -1;}
-              if (!p3hand.load("src/ptiles.png", sf::Vector2u(ptileWidth, ptileHeight), p1handM, 23, 12, p3Area.x + p3Area.width/2-(ptileWidth*23)/2 ,p3Area.height - ptileHeight*12 -10))
-                    {  return -1;}
-                    if (!p4hand.load("src/ptiles.png", sf::Vector2u(ptileWidth, ptileHeight), p1handM, 23, 12, p4Area.x + p4Area.width/2-(ptileWidth*23)/2 ,p4Area.y + p4Area.height  - ptileHeight*12 -10))
-                          {  return -1;}
+    if (!playerHand[0].load("src/ptiles.png", sf::Vector2u(ptileWidth, ptileHeight), p1handM, 23, 12, pAreas[0].width/2-(ptileWidth*23)/2 ,pAreas[0].height - ptileHeight*12 -10))
+        {  return -1;}
+    if (!playerHand[1].load("src/ptiles.png", sf::Vector2u(ptileWidth, ptileHeight), p1handM, 23, 12, pAreas[1].width/2-(ptileWidth*23)/2 ,pAreas[1].y + pAreas[1].height - ptileHeight*12 -10))
+        {  return -1;}
+    if (!playerHand[2].load("src/ptiles.png", sf::Vector2u(ptileWidth, ptileHeight), p1handM, 23, 12, pAreas[2].x + pAreas[2].width/2-(ptileWidth*23)/2 ,pAreas[2].height - ptileHeight*12 -10))
+        {  return -1;}
+    if (!playerHand[3].load("src/ptiles.png", sf::Vector2u(ptileWidth, ptileHeight), p1handM, 23, 12, pAreas[3].x + pAreas[3].width/2-(ptileWidth*23)/2 ,pAreas[3].y + pAreas[3].height  - ptileHeight*12 -10))
+        {  return -1;}
+//*********************************************************************************************************
 
   while (window.isOpen()) {
+
+
 
     Event event;
     while (window.pollEvent(event)) {
 
       if (event.type == Event::Closed) {
+
+
         window.close();
-      }
+
+       }
 
       if (event.type == Event::KeyPressed) {
 
@@ -137,31 +151,16 @@ int main() {
     }
 
     // draw it
+    RectangleShape pAreasShape[4];
 
-    RectangleShape p1AreaS;
-    p1AreaS.setSize(Vector2f(p1Area.width,p1Area.height));
-    p1AreaS.setPosition(p1Area.x,p1Area.y);
-    p1AreaS.setFillColor(p1Area.color);
-    p1AreaS.setOutlineColor(sf::Color::Red);
-    p1AreaS.setOutlineThickness(OutLineSize);
-    RectangleShape p2AreaS;
-    p2AreaS.setSize(Vector2f(p2Area.width,p2Area.height));
-    p2AreaS.setPosition(p2Area.x,p2Area.y);
-    p2AreaS.setFillColor(p2Area.color);
-    p2AreaS.setOutlineColor(sf::Color::Blue);
-    p2AreaS.setOutlineThickness(OutLineSize);
-    RectangleShape p3AreaS;
-    p3AreaS.setSize(Vector2f(p3Area.width,p3Area.height));
-    p3AreaS.setPosition(p3Area.x,p3Area.y);
-    p3AreaS.setFillColor(p3Area.color);
-    p3AreaS.setOutlineColor(sf::Color::Green);
-    p3AreaS.setOutlineThickness(OutLineSize);
-    RectangleShape p4AreaS;
-    p4AreaS.setSize(Vector2f(p4Area.width,p4Area.height));
-    p4AreaS.setPosition(p4Area.x,p4Area.y);
-    p4AreaS.setFillColor(p4Area.color);
-    p4AreaS.setOutlineColor(sf::Color::Yellow);
-    p4AreaS.setOutlineThickness(OutLineSize);
+    for(int i=0 ; i <=3;i++){
+      pAreasShape[i].setSize(Vector2f(pAreas[i].width,pAreas[i].height));
+      pAreasShape[i].setSize(Vector2f(pAreas[i].width,pAreas[i].height));
+      pAreasShape[i].setPosition(pAreas[i].x,pAreas[i].y);
+      pAreasShape[i].setFillColor(pAreas[i].color);
+      pAreasShape[i].setOutlineColor(sf::Color::Black);
+      pAreasShape[i].setOutlineThickness(OutLineSize);
+  }
     RectangleShape HeaderS;
     HeaderS.setSize(Vector2f(Header.width,Header.height));
     HeaderS.setPosition(Header.x,Header.y);
@@ -171,32 +170,28 @@ int main() {
     FooterS.setSize(Vector2f(Footer.width,Footer.height));
     FooterS.setPosition(Footer.x,Footer.y);
     FooterS.setFillColor(Footer.color);
-
-
     window.clear(sf::Color BgColor);
     window.draw(map);
     window.draw(HeaderS);
     window.draw(FooterS);
-      window.draw(p2AreaS);
-    window.draw(p1AreaS);
+    for (int i = 0 ; i<=3;i++){
+      window.draw(pAreasShape[i]);
+    }
+    for (int i = 0 ; i<=3;i++){
+      window.draw(playerHand[i]);
+    }
 
-    window.draw(p3AreaS);
-    window.draw(p4AreaS);
-    window.draw(p1hand);
-    window.draw(p2hand);
-    window.draw(p3hand);
-    window.draw(p4hand);
+    for (int i=0 ; i<=3;i++){
+      window.draw(PlayerName[i]);
+    }
+    sf::VertexArray lines(sf::LinesStrip, 4);
+lines[0].position = sf::Vector2f(10, 0);
+lines[1].position = sf::Vector2f(20, 0);
+lines[2].position = sf::Vector2f(30, 5);
+lines[3].position = sf::Vector2f(40, 2);
+window.draw(lines);
 
-    p1.setColor(sf::Color::Blue);
-    p2.setColor(sf::Color::Red);
-    p3.setColor(sf::Color::Yellow);
-    p4.setColor(sf::Color::Green);
-
-    window.draw(p1);
-    window.draw(p2);
-    window.draw(p3);
-    window.draw(p4);
-window.draw(title);
+    window.draw(title);
 
     window.display();
 

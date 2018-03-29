@@ -2,7 +2,7 @@ class TileMap : public sf::Drawable, public sf::Transformable
 {
 public:
 
-    bool load(const std::string& tileset, sf::Vector2u tileSize, const int* tiles, unsigned int width, unsigned int height,int offSetX,int offSetY)
+    bool load(const std::string& tileset, sf::Vector2u tileSize,  int* tiles, unsigned int width, unsigned int height,int offSetX,int offSetY)
     {
         // load the tileset texture
         if (!m_tileset.loadFromFile(tileset))
