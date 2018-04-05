@@ -1,7 +1,7 @@
 
 #include <random>
 #include <SFML/Graphics.hpp>
-
+#include <iostream>
 using namespace std;
 using namespace sf;
 
@@ -19,6 +19,15 @@ using namespace sf;
 #include "tileMap.cpp"
 
 
+struct tiles{
+int id;
+TileMap map;
+float angle;
+};
+struct countTime{
+  int min;
+  int sec;
+};
 
 struct Rectangle {
   float x;
@@ -27,19 +36,17 @@ struct Rectangle {
   float height;
   Color color;
 };
-
+struct player{
+  Color color;
+  int score;
+  countTime Time;
+  TileMap Hand;
+  Rectangle pos;
+};
 int main() {
   sf::Font font;
   if (!font.loadFromFile("src/RobotoMono-Regular.ttf"))
       return EXIT_FAILURE;
-
-  TileMap map;
-   int level[] =
-      {
-        #include "map.map"
-
-            };
-
 
 
 
@@ -94,10 +101,27 @@ int main() {
   title.setPosition(Vector2f(((Width/2 - title.getLocalBounds().width/2)),0.0));
 //*********************************************************************************************************
   sf::Text PlayerName[4];
+  player players[4];
+  players[0].pos.x=pAreas[0].width/2-(ptileWidth*23)/2;
+  players[0].pos.y= pAreas[0].height - ptileHeight*12 -10;
+
+
+  players[1].pos.x=pAreas[1].width/2-(ptileWidth*23)/2 ;
+  players[1].pos.y=  pAreas[1].y + pAreas[1].height - ptileHeight*12 -10;
+
+  players[2].pos.x =pAreas[2].x + pAreas[2].width/2-(ptileWidth*23)/2 ;
+  players[2].pos.y=pAreas[2].height - ptileHeight*12 -10;
+
+  players[3].pos.x =Width/2 ;
+  players[3].pos.y = Height/2;
+  players[3].Hand.setOrigin(Vector2f(12*22/2,13*12/2));
+  players[3].Hand.setRotation(10);
+
+//*********************
 
   for(int i=0 ; i<=3;i++){
-
-    PlayerName[i].setString("player");
+    String tmp = std::to_string(i+1);
+    PlayerName[i].setString("player" + tmp);
     PlayerName[i].setFont(font);
     PlayerName[i].setCharacterSize (20);
   }
@@ -107,7 +131,7 @@ int main() {
   PlayerName[2].setPosition(Vector2f((pAreas[2].x) + (pAreas[2].width/2) - PlayerName[2].getLocalBounds().width/2,0.0));
   PlayerName[3].setPosition(Vector2f((pAreas[3].x) + (pAreas[3].width/2) - PlayerName[3].getLocalBounds().width/2,pAreas[3].y + PlayerName[3].getLocalBounds().height/2 ));
 //****************************************************************************************************
-  TileMap playerHand[4];
+//***************************************************************************
 
   int p1handM[] =
     {
@@ -115,14 +139,15 @@ int main() {
     };
     if (!map.load("src/tileset20m.png", sf::Vector2u(tileWidth, tileHeight), level, MapSize, MapSize, MapOffSetPosX ,MapOffSetPosY))
         {  return -1;}
-    if (!playerHand[0].load("src/ptiles.png", sf::Vector2u(ptileWidth, ptileHeight), p1handM, 23, 12, pAreas[0].width/2-(ptileWidth*23)/2 ,pAreas[0].height - ptileHeight*12 -10))
+    if (!players[0].Hand.load("src/ptiles.png", sf::Vector2u(ptileWidth, ptileHeight), p1handM, 23, 12, players[0].pos.x,players[0].pos.y))
         {  return -1;}
-    if (!playerHand[1].load("src/ptiles.png", sf::Vector2u(ptileWidth, ptileHeight), p1handM, 23, 12, pAreas[1].width/2-(ptileWidth*23)/2 ,pAreas[1].y + pAreas[1].height - ptileHeight*12 -10))
+    if (!players[1].Hand.load("src/ptiles.png", sf::Vector2u(ptileWidth, ptileHeight), p1handM, 23, 12, players[1].pos.x,players[1].pos.y))
         {  return -1;}
-    if (!playerHand[2].load("src/ptiles.png", sf::Vector2u(ptileWidth, ptileHeight), p1handM, 23, 12, pAreas[2].x + pAreas[2].width/2-(ptileWidth*23)/2 ,pAreas[2].height - ptileHeight*12 -10))
+    if (!players[2].Hand.load("src/ptiles.png", sf::Vector2u(ptileWidth, ptileHeight), p1handM, 23, 12,players[2].pos.x ,players[2].pos.y))
         {  return -1;}
-    if (!playerHand[3].load("src/ptiles.png", sf::Vector2u(ptileWidth, ptileHeight), p1handM, 23, 12, pAreas[3].x + pAreas[3].width/2-(ptileWidth*23)/2 ,pAreas[3].y + pAreas[3].height  - ptileHeight*12 -10))
+    if (!players[3].Hand.load("src/ptiles.png", sf::Vector2u(ptileWidth, ptileHeight), p1handM, 23, 12,players[3].pos.x ,players[3].pos.y))
         {  return -1;}
+
 //*********************************************************************************************************
 
   while (window.isOpen()) {
@@ -177,21 +202,15 @@ int main() {
     for (int i = 0 ; i<=3;i++){
       window.draw(pAreasShape[i]);
     }
+
     for (int i = 0 ; i<=3;i++){
-      window.draw(playerHand[i]);
+      window.draw(players[i].Hand);
     }
-
     for (int i=0 ; i<=3;i++){
-      window.draw(PlayerName[i]);
+      window.draw(PlayerName[i] );
     }
-    sf::VertexArray lines(sf::LinesStrip, 4);
-lines[0].position = sf::Vector2f(10, 0);
-lines[1].position = sf::Vector2f(20, 0);
-lines[2].position = sf::Vector2f(30, 5);
-lines[3].position = sf::Vector2f(40, 2);
-window.draw(lines);
 
-    window.draw(title);
+  //  window.draw(title);
 
     window.display();
 
