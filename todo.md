@@ -1,12 +1,12 @@
 # todo
 - [ ] each piece has its own id
-- [ ] structure player
-- [ ] trait blanc en haut à gauche
+- [x] structure player
+- [x] trait blanc en haut à gauche
 - [ ] player pas assez visible en blanc sur jaune
-- [ ] adding the detection algo
+- [x] adding the detection algo
 - [ ] adding a main menu
 - [ ] adding the score
 - [ ] adding the timer
 - [ ] adding new textures
 - [x] ability to rotate
-- [ ] 
+- [ ]
