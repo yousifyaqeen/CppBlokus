@@ -90,8 +90,7 @@ int iniMap[] =
   //2 is the second player(blue)
   //3 is the third player(green)
   //4 is the fourth player(yellow)
-  7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-  7, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 7,
+  1, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 3,
   7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
   7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
   7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
@@ -112,8 +111,9 @@ int iniMap[] =
   7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
   7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
   7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
-  7, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 7,
-  7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+  7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
+  7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7,
+  2, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 4,
 
 };
 //definning the tile array see the full table in tile.map
@@ -317,6 +317,7 @@ void print_matrix(int input[tile_matrix_size][tile_matrix_size]){
 //**************************************************************
 
 
+
 tile rotate_Clock_Wise(tile input){
   //an algorithme to rotate a matrix clockwise
   //can only be used for a matrix of size 5*5
@@ -398,6 +399,7 @@ tile to_Tile(tile input){
 
 tile to_Tile(int input[tile_matrix_size][tile_matrix_size],tile tmp){
   //a function to create a table from the tile matrix
+
   int n=0;
   for(int i=0;i<tile_matrix_size;i++){
     for(int j=0;j<tile_matrix_size;j++){
@@ -720,7 +722,20 @@ player set_Player(int id,sf::Color color,int time,tile tiles[]){
   return tmp;
 }
 
+tile flip_Matrix(tile input){
 
+
+    for(int i=0;i<5;i++){
+      int tmp;
+      tmp =input.matrix[i][0];
+      input.matrix[i][0]=input.matrix[i][4];
+      input.matrix[i][4]=tmp;
+      tmp =input.matrix[i][1];
+      input.matrix[i][1]=input.matrix[i][3];
+      input.matrix[i][3]=tmp;
+    }
+  return input= to_Tile(input.matrix,input);
+}
 //**************************************************************
 
 int main() {
@@ -815,10 +830,10 @@ int main() {
 
 
  Rectangle skip_turn_buttonR;
- skip_turn_buttonR.width=window_height*0.2;
+ skip_turn_buttonR.width=window_width*0.1;
  skip_turn_buttonR.height=window_height*0.1;
  skip_turn_buttonR.x =Footer.x+Footer.width/2-skip_turn_buttonR.width/2;
- skip_turn_buttonR.y =Footer.y+Footer.height/2-skip_turn_buttonR.height/2;;
+ skip_turn_buttonR.y =main_board_position_y-skip_turn_buttonR.height;
  sf::Texture skip_turn_buttonRTexture;
  //loading and checking for the files
  if (!skip_turn_buttonRTexture.loadFromFile("src/skip.png"))
@@ -831,8 +846,26 @@ int main() {
  skip_turn_buttonRS.setPosition(skip_turn_buttonR.x,skip_turn_buttonR.y);
  skip_turn_buttonRS.setTexture(&skip_turn_buttonRTexture);
 
+ Rectangle flip_tile_buttonR;
+ flip_tile_buttonR.width=window_width*0.1;
+ flip_tile_buttonR.height=window_height*0.1;
+ flip_tile_buttonR.x =Footer.x+Footer.width/2-flip_tile_buttonR.width/2;
+ flip_tile_buttonR.y =Footer.y+(Footer.height/2)-flip_tile_buttonR.height/2;
+ sf::Texture flip_tile_buttonRTexture;
+ //loading and checking for the files
+ if (!flip_tile_buttonRTexture.loadFromFile("src/flip.png"))
+ {
+   cout << "cant load the Texture file associated to rotate_Counter_Clock_Wise button : src/CCWrotate.png";
+ }
+
+ RectangleShape flip_tile_buttonRS;
+ flip_tile_buttonRS.setSize(Vector2f(flip_tile_buttonR.width,flip_tile_buttonR.height));
+ flip_tile_buttonRS.setPosition(flip_tile_buttonR.x,flip_tile_buttonR.y);
+ flip_tile_buttonRS.setTexture(&flip_tile_buttonRTexture);
+
+
   Rectangle rotate_Counter_Clock_WiseR;
-  rotate_Counter_Clock_WiseR.width=window_height*0.1;
+  rotate_Counter_Clock_WiseR.width=window_width*0.1;
   rotate_Counter_Clock_WiseR.height=window_height*0.1;
   rotate_Counter_Clock_WiseR.x =Footer.x+Footer.width/4-rotate_Counter_Clock_WiseR.width/2;
   rotate_Counter_Clock_WiseR.y =Footer.y+Footer.height/2-rotate_Counter_Clock_WiseR.height/2;;
@@ -842,6 +875,7 @@ int main() {
   {
     cout << "cant load the Texture file associated to rotate_Counter_Clock_Wise button : src/CCWrotate.png";
   }
+
 
   Rectangle rotate_Clock_WiseR;
   rotate_Clock_WiseR.width=window_height*0.1;
@@ -1078,6 +1112,10 @@ int main() {
             if(MousPosx<skip_turn_buttonR.x + skip_turn_buttonR.width &&MousPosx>skip_turn_buttonR.x &&MousPosy<skip_turn_buttonR.y+skip_turn_buttonR.height&&MousPosy>skip_turn_buttonR.y){
               player_one_can_play =false;
             }
+            if(MousPosx<flip_tile_buttonR.x + flip_tile_buttonR.width &&MousPosx>flip_tile_buttonR.x &&MousPosy<flip_tile_buttonR.y+flip_tile_buttonR.height&&MousPosy>flip_tile_buttonR.y){
+              players[player].Hand[idp[player]-1]= flip_Matrix(players[player].Hand[idp[player]-1]);
+              players[player].Hand[idp[player]-1]=to_Tile(players[player].Hand[idp[player]-1].matrix,players[player].Hand[idp[player]-1]);
+            }
 
           }else if(!player_one_can_play){
             player=1;
@@ -1156,6 +1194,10 @@ int main() {
               if(MousPosx<skip_turn_buttonR.x + skip_turn_buttonR.width &&MousPosx>skip_turn_buttonR.x &&MousPosy<skip_turn_buttonR.y+skip_turn_buttonR.height&&MousPosy>skip_turn_buttonR.y){
                 player_two_can_play =false;
               }
+              if(MousPosx<flip_tile_buttonR.x + flip_tile_buttonR.width &&MousPosx>flip_tile_buttonR.x &&MousPosy<flip_tile_buttonR.y+flip_tile_buttonR.height&&MousPosy>flip_tile_buttonR.y){
+                  players[player].Hand[idp[player]-1]= flip_Matrix(players[player].Hand[idp[player]-1]);
+                  players[player].Hand[idp[player]-1]=to_Tile(players[player].Hand[idp[player]-1].matrix,players[player].Hand[idp[player]-1]);
+                }
 
             }else if(!player_two_can_play){
               player=2;
@@ -1217,6 +1259,10 @@ int main() {
             }
             if(MousPosx<skip_turn_buttonR.x + skip_turn_buttonR.width &&MousPosx>skip_turn_buttonR.x &&MousPosy<skip_turn_buttonR.y+skip_turn_buttonR.height&&MousPosy>skip_turn_buttonR.y){
               player_three_can_play =false;
+            }
+            if(MousPosx<flip_tile_buttonR.x + flip_tile_buttonR.width &&MousPosx>flip_tile_buttonR.x &&MousPosy<flip_tile_buttonR.y+flip_tile_buttonR.height&&MousPosy>flip_tile_buttonR.y){
+              players[player].Hand[idp[player]-1]= flip_Matrix(players[player].Hand[idp[player]-1]);
+              players[player].Hand[idp[player]-1]=to_Tile(players[player].Hand[idp[player]-1].matrix,players[player].Hand[idp[player]-1]);
             }
           }else if(!player_three_can_play){
             player=3;
@@ -1281,6 +1327,10 @@ int main() {
             }if(MousPosx<skip_turn_buttonR.x + skip_turn_buttonR.width &&MousPosx>skip_turn_buttonR.x &&MousPosy<skip_turn_buttonR.y+skip_turn_buttonR.height&&MousPosy>skip_turn_buttonR.y){
               player_four_can_play =false;
             }
+            if(MousPosx<flip_tile_buttonR.x + flip_tile_buttonR.width &&MousPosx>flip_tile_buttonR.x &&MousPosy<flip_tile_buttonR.y+flip_tile_buttonR.height&&MousPosy>flip_tile_buttonR.y){
+              players[player].Hand[idp[player]-1]= flip_Matrix(players[player].Hand[idp[player]-1]);
+              players[player].Hand[idp[player]-1]=to_Tile(players[player].Hand[idp[player]-1].matrix,players[player].Hand[idp[player]-1]);
+            }
           }
           else if(!player_four_can_play){
             player=0;
@@ -1318,6 +1368,7 @@ int main() {
     window.draw(rotate_Clock_WiseRS);
     window.draw(rotate_Counter_Clock_WiseRS);
     window.draw(rotate_Counter_Clock_WiseRS);
+    window.draw(flip_tile_buttonRS);
       window.draw(skip_turn_buttonRS);
     for (int i = 0 ; i<=3;i++){
       window.draw(pAreasShape[i]);

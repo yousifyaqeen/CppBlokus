@@ -4,10 +4,6 @@
 - [ ] adding the timer
 - [ ] adding new textures
 - [ ] separate the main file into smaller classes
-- [ ] matrix mirror algorithme
-
-
-
 
 
 # done
@@ -19,3 +15,4 @@
 - [x] adding the detection algo
 - [x] add tile display areas
 - [x] add rotation buttons
+- [x] matrix mirror algorithme
