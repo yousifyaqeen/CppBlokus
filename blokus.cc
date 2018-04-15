@@ -972,16 +972,11 @@ int main() {
       pAreasShape[i].setOutlineThickness(out_line_size);
     }
 
-    sf::Texture BG;
-    if (!BG.loadFromFile("src/MISC_28.JPG"))
-    {
-      cout << "cant load the Texture file associated to rotate_Clock_Wise button : src/CWrotate.png";
-    }
+
     RectangleShape HeaderS;
     HeaderS.setSize(Vector2f(Header.width,Header.height));
     HeaderS.setPosition(Header.x,Header.y);
-    //HeaderS.setFillColor(Header.color);
-    HeaderS.setTexture(&BG);
+  HeaderS.setFillColor(Header.color);
 
     RectangleShape FooterS;
     FooterS.setSize(Vector2f(Footer.width,Footer.height));
