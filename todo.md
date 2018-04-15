@@ -1,12 +1,21 @@
 # todo
-- [ ] each piece has its own id
-- [x] structure player
-- [x] trait blanc en haut à gauche
 - [ ] player pas assez visible en blanc sur jaune
-- [x] adding the detection algo
 - [ ] adding a main menu
-- [ ] adding the score
 - [ ] adding the timer
 - [ ] adding new textures
+- [ ] separate the main file into smaller classes
+- [ ] matrix mirror algorithme
+
+
+
+
+
+# done
 - [x] ability to rotate
-- [ ]
+- [x] each piece has its own id
+- [x] structure player
+- [x] trait blanc en haut à gauche
+- [x] adding the score
+- [x] adding the detection algo
+- [x] add tile display areas
+- [x] add rotation buttons
