@@ -4,6 +4,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <ctime>
+#include "Chronometer.hpp"
 
 
 using namespace std;
@@ -38,7 +39,7 @@ const float out_line_size              = 2.0 ;
 //improve the display of player board
 const int   overflowcorrect            = 10 ;
 //define a start time (representing minutes seconds are added later when defining the time for each player and is always equal to 00)
-const int   time_for_each_player       = 10 ;
+const int   time_for_each_player       = 0 ;
 //define the size of a single tile
 const int   tile_matrix_size           = 5 ;
 
@@ -739,6 +740,14 @@ tile flip_Matrix(tile input){
 //**************************************************************
 
 int main() {
+  bool  continue_playing = true ;
+  bool start_player_1_timer =true;
+  bool start_player_2_timer =true;
+//  sf::Clock clock1;
+  int temporary_player_timer=0;
+  Time time1;
+  sftools::Chronometer chrono;
+
   sf::View view;
   //putting the tiles into one array for easy access
   tile tiles[21];
@@ -903,7 +912,6 @@ int main() {
       rotate_Clock_WiseRS.setTexture(&rotate_Clock_WiseRTexture);
   //*********************************************************************************************************
 
-
   sf::Text title("Blokus", font, 50);
   title.setPosition(Vector2f(((window_width/2 - title.getLocalBounds().width/2)),0.0));
   //*********************************************************************************************************
@@ -937,23 +945,29 @@ int main() {
     PlayerName[i].setCharacterSize (20);
     PlayerName[i].setStyle(sf::Text::Bold);
     PlayerName[i].setColor(sf::Color::Black);
+    PlayerName[i].setPosition(Vector2f(pAreas[i].x+overflowcorrect, pAreas[i].y+PlayerName[i].getLocalBounds().height/2));
 
   }
-  PlayerName[0].setPosition(Vector2f(overflowcorrect,0.0));
+/*  PlayerName[0].setPosition(Vector2f(overflowcorrect,0.0));
   PlayerName[1].setPosition(Vector2f(overflowcorrect,pAreas[1].y + PlayerName[1].getLocalBounds().height/2 ));
   PlayerName[2].setPosition(Vector2f((pAreas[2].x) + overflowcorrect,0.0));
-  PlayerName[3].setPosition(Vector2f((pAreas[3].x) + overflowcorrect,pAreas[3].y + PlayerName[3].getLocalBounds().height/2 ));
+  PlayerName[3].setPosition(Vector2f((pAreas[3].x) + overflowcorrect,pAreas[3].y + PlayerName[3].getLocalBounds().height/2 ));*/
 
   sf::Text PlayerClockDisplay[4];
 
-  for(int i=0 ; i<=3;i++){
-    String tmp = std::to_string(i+1);
+  for(int i=0 ; i<4;i++){
+    PlayerClockDisplay[i].setString("00:00");
     PlayerClockDisplay[i].setFont(font);
     PlayerClockDisplay[i].setCharacterSize (20);
     PlayerClockDisplay[i].setStyle(sf::Text::Bold);
     PlayerClockDisplay[i].setColor(sf::Color::Black);
+    PlayerClockDisplay[i].setPosition(Vector2f(pAreas[i].x+pAreas[i].width/2,pAreas[i].y+PlayerName[i].getLocalBounds().height/2));
+
+
+
 
   }
+
 
   //****************************************************************************************************
   //***************************************************************************
@@ -1049,6 +1063,9 @@ int main() {
       switch(player){
         case 0:{
 
+
+            chrono.resume();
+
           if (event.type == sf::Event::MouseButtonPressed&&player_one_can_play) {
 
 
@@ -1063,11 +1080,12 @@ int main() {
                 GameBoard= do_Move(players[player].Hand[idp[player]-1],GameBoard,transy,transx,players[player].id);
                 players[player].pboard=is_Valid(testFull, players[player].pboard,transy,transx,players[player].Hand[idp[player]-1].size,idp[player]);
                 players[player].Have[idp[player]]=0;
-
+                chrono.pause();
                 if(players[player].score==21){
 
                     String rep=to_string(player+1);
                     GameOverText.setString("Game Over \nplayer " + rep + " wins");
+                    continue_playing = false;
 
                 }else{
                   if(idp[player]<21&&players[player].Have[idp[player]+1]!=0){
@@ -1126,7 +1144,11 @@ int main() {
 //--------------------------------------------------------------------------------------------------------------------------------
 
         case 1:{
-          sf::Clock clock2;
+        /*  if(start_player_2_timer){
+             start_player_2_timer =false;
+          clock1.restart();
+        }*/
+
           if (event.type == sf::Event::MouseButtonPressed&&player_two_can_play) {
 
             if(MousPosx>main_board_position_x&&MousPosy>main_board_position_y&&MousPosx<main_board_position_x+ main_board_size* main_board_tile_width&&MousPosy<main_board_position_y+ main_board_size* main_board_tile_height){
@@ -1145,7 +1167,7 @@ int main() {
 
                     String rep=to_string(player+1);
                     GameOverText.setString("Game Over \nplayer " + rep + " wins");
-                    player = 5;
+                    continue_playing = false;
 
                 }else{
 
@@ -1223,6 +1245,8 @@ int main() {
                 if(players[player].score==21){
                     String rep=to_string(player+1);
                     GameOverText.setString("Game Over \nplayer " + rep + " wins");
+                    continue_playing = false;
+
                 }else{
                   if(idp[player]<21&&players[player].Have[idp[player]+1]!=0){
                     idp[player]++;
@@ -1288,6 +1312,8 @@ int main() {
                      if(players[player].score==21){
                          String rep=to_string(player+1);
                          GameOverText.setString("Game Over \nplayer " + rep + " wins");
+                         continue_playing = false;
+
                      }else{
                        if(idp[player]<21&&players[player].Have[idp[player]+1]!=0){
                          idp[player]++;
@@ -1340,7 +1366,32 @@ int main() {
       }
     }
   }
-//}
+  if(player==0){
+   time1 = chrono.getElapsedTime();
+if(players[0].Time.sec>59){
+  players[0].Time.min=players[0].Time.min+1;
+  chrono.reset(true);
+  players[0].Time.sec=0;
+}
+  players[0].Time.sec=time1.asSeconds();
+  if(players[0].Time.sec<10){
+    if(players[0].Time.min<10){
+      PlayerClockDisplay[0].setString("0" + to_string(players[0].Time.min) + ":0" + to_string(players[0].Time.sec) );
+    }else{
+      PlayerClockDisplay[0].setString(to_string(players[0].Time.min) + ":0" + to_string(players[0].Time.sec) );
+    }
+  }else{
+
+      if(players[0].Time.min<10){
+        PlayerClockDisplay[0].setString("0" + to_string(players[0].Time.min) + ":" + to_string(players[0].Time.sec) );
+      }else{
+        PlayerClockDisplay[0].setString(to_string(players[0].Time.min) + ":" + to_string(players[0].Time.sec) );
+      }
+
+
+}
+}
+
 //************************************************************************************************************************************************************************
     if (!map.load("src/tileset20m.png", sf::Vector2u( main_board_tile_width,  main_board_tile_height), GameBoard.table , main_board_size,  main_board_size, main_board_position_x ,main_board_position_y)){
       cout << "cant load the Texture file associated to main board load  : src/tileset20m.png";
@@ -1359,8 +1410,8 @@ int main() {
          return -1;
        }
     }
-
-    if(player_one_can_play||player_two_can_play||player_three_can_play||player_four_can_play){
+    window.setSize(Vector2u(window_width,window_height));
+    if((player_one_can_play||player_two_can_play||player_three_can_play||player_four_can_play)&&continue_playing){
 
     window.draw(map);
     window.draw(HeaderS);
@@ -1381,9 +1432,11 @@ int main() {
     for (int i=0 ; i<=3;i++){
       window.draw(PlayerName[i]);
     }
+    for (int i=0 ; i<=3;i++){
+      window.draw(PlayerClockDisplay[i]);
+    }
       window.draw(title);
       window.display();
-
     }else{
       int max=players[0].score;
       for(int i=1;i<4;i++){

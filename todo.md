@@ -1,7 +1,6 @@
 # todo
 - [ ] player pas assez visible en blanc sur jaune
 - [ ] adding a main menu
-- [ ] adding the timer
 - [ ] adding new textures
 - [ ] separate the main file into smaller classes
 
@@ -16,3 +15,4 @@
 - [x] add tile display areas
 - [x] add rotation buttons
 - [x] matrix mirror algorithme
+- [x] adding the timer
