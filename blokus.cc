@@ -11,9 +11,9 @@ using namespace std;
 using namespace sf;
 
 //height of the window
-const int window_height                = 720 ;
+ int window_height                = 700 ;
 //width of the window
-const int window_width                 = 1080 ;
+ int window_width                 = 1080 ;
 //the window's background color
 #define BgColor (89,88,86,255)
 //the width of the main board tiles(same as the size in the texture file)
@@ -44,6 +44,8 @@ const int   time_for_each_player       = 0 ;
 const int   tile_matrix_size           = 5 ;
 
 const int   total_number_of_tiles      = 21;
+
+const int   number_of_players          = 4;//between 1 and 4
 
 int tilesTableWithCenter[] =
 // an array defining the player board and each piece has 2 associated to its
@@ -280,6 +282,7 @@ struct player{
   TileMap    cTile;
   playerHand pboard;
   Rectangle  pos;
+  bool canPlay;
 
 };
 
@@ -720,6 +723,7 @@ player set_Player(int id,sf::Color color,int time,tile tiles[]){
     tmp.Hand[i]=set_Tile(tiles[i].id,tiles[i].table,tiles[i].size);
   }
   tmp.pboard=set_Player_Hand(tilesTableWithCenter);
+  tmp.canPlay=true;
   return tmp;
 }
 
@@ -741,12 +745,9 @@ tile flip_Matrix(tile input){
 
 int main() {
   bool  continue_playing = true ;
-  bool start_player_1_timer =true;
-  bool start_player_2_timer =true;
-//  sf::Clock clock1;
-  int temporary_player_timer=0;
-  Time time1;
-  sftools::Chronometer chrono;
+  Time times[4];
+  sftools::Chronometer chrono[4];
+
 
   sf::View view;
   //putting the tiles into one array for easy access
@@ -942,29 +943,35 @@ int main() {
     String tmp = std::to_string(i+1);
     PlayerName[i].setString("player" + tmp);
     PlayerName[i].setFont(font);
-    PlayerName[i].setCharacterSize (20);
+    PlayerName[i].setCharacterSize (25);
     PlayerName[i].setStyle(sf::Text::Bold);
     PlayerName[i].setColor(sf::Color::Black);
-    PlayerName[i].setPosition(Vector2f(pAreas[i].x+overflowcorrect, pAreas[i].y+PlayerName[i].getLocalBounds().height/2));
+    PlayerName[i].setPosition(Vector2f(pAreas[i].x+pAreas[i].width/2-PlayerName[i].getGlobalBounds().width/2,pAreas[i].y));
 
   }
-/*  PlayerName[0].setPosition(Vector2f(overflowcorrect,0.0));
-  PlayerName[1].setPosition(Vector2f(overflowcorrect,pAreas[1].y + PlayerName[1].getLocalBounds().height/2 ));
-  PlayerName[2].setPosition(Vector2f((pAreas[2].x) + overflowcorrect,0.0));
-  PlayerName[3].setPosition(Vector2f((pAreas[3].x) + overflowcorrect,pAreas[3].y + PlayerName[3].getLocalBounds().height/2 ));*/
 
-  sf::Text PlayerClockDisplay[4];
+
+  sf::Text player_score_display[4];
+  for(int i=0 ; i<4;i++){
+
+    player_score_display[i].setString("score :");
+    player_score_display[i].setFont(font);
+    player_score_display[i].setCharacterSize (20);
+    player_score_display[i].setStyle(sf::Text::Bold);
+    player_score_display[i].setColor(sf::Color::Black);
+    player_score_display[i].setPosition(Vector2f(pAreas[i].x+overflowcorrect, PlayerName[i].getLocalBounds().height*2 + PlayerName[i].getPosition().y ));
+
+  }
+  sf::Text player_clock_display[4];
 
   for(int i=0 ; i<4;i++){
-    PlayerClockDisplay[i].setString("00:00");
-    PlayerClockDisplay[i].setFont(font);
-    PlayerClockDisplay[i].setCharacterSize (20);
-    PlayerClockDisplay[i].setStyle(sf::Text::Bold);
-    PlayerClockDisplay[i].setColor(sf::Color::Black);
-    PlayerClockDisplay[i].setPosition(Vector2f(pAreas[i].x+pAreas[i].width/2,pAreas[i].y+PlayerName[i].getLocalBounds().height/2));
 
-
-
+    player_clock_display[i].setString("time :00:00");
+    player_clock_display[i].setFont(font);
+    player_clock_display[i].setCharacterSize (20);
+    player_clock_display[i].setStyle(sf::Text::Bold);
+    player_clock_display[i].setColor(sf::Color::Black);
+    player_clock_display[i].setPosition(Vector2f(pAreas[i].x+pAreas[i].width-player_clock_display[i].getLocalBounds().width,  PlayerName[i].getLocalBounds().height*2 + PlayerName[i].getPosition().y ));
 
   }
 
@@ -998,13 +1005,11 @@ int main() {
 
   //*********************************************************************************************************
   int player=0;
-  bool player_one_can_play=true;
-  bool player_two_can_play=true;
-  bool player_three_can_play=true;
-  bool player_four_can_play=true;
+
   Board GameBoard = set_Board(iniMap);
   playerHand testFull=set_Player_Hand(tilesTableWithEachPiece);
   while (window.isOpen()) {
+    window.setSize(Vector2u(window_width,window_height));
 
     GameOverText.setPosition(Vector2f(window_width/2-GameOverText.getLocalBounds().width/2,window_height/2));
     GameOverText.setFont(font);
@@ -1032,7 +1037,7 @@ int main() {
     FooterS.setFillColor(Footer.color);
     window.clear(sf::Color BgColor);
 
-    for(int i=0 ; i <=3;i++){
+    for(int i=0 ; i <3;i++){
       if(i==player){
       pAreasShape[i].setOutlineColor(sf::Color::Red);
     }else{
@@ -1055,18 +1060,14 @@ int main() {
 
         }
       }
-  //**********************************************************************************************************************************************************
+  //*********************************************************************************************************************************************************
 
+  //game play algorthme for each player
       int MousPosx = (int) event.mouseButton.x;
       int MousPosy = (int)event.mouseButton.y;
+          chrono[player].resume();
 
-      switch(player){
-        case 0:{
-
-
-            chrono.resume();
-
-          if (event.type == sf::Event::MouseButtonPressed&&player_one_can_play) {
+          if (event.type == sf::Event::MouseButtonPressed&&players[player].canPlay) {
 
 
             if(MousPosx>main_board_position_x&&MousPosy>main_board_position_y&&MousPosx<main_board_position_x+ main_board_size* main_board_tile_width&&MousPosy<main_board_position_y+ main_board_size* main_board_tile_height){
@@ -1080,7 +1081,7 @@ int main() {
                 GameBoard= do_Move(players[player].Hand[idp[player]-1],GameBoard,transy,transx,players[player].id);
                 players[player].pboard=is_Valid(testFull, players[player].pboard,transy,transx,players[player].Hand[idp[player]-1].size,idp[player]);
                 players[player].Have[idp[player]]=0;
-                chrono.pause();
+                chrono[player].pause();
                 if(players[player].score==21){
 
                     String rep=to_string(player+1);
@@ -1102,16 +1103,21 @@ int main() {
                       }
                     }
                   }
-                  player=1;
 
                 }
+                if(player+1<4){
+                  player++;
+                }else{
+                  player=0;
+                }
             }
+
           }
+            if(MousPosx>players[player].pos.x&&MousPosx<players[player].pos.x+(12*23)&&MousPosy<players[player].pos.y+(player_board_tile_height*player_board_matrix_height)&&MousPosy>players[player].pos.y){
 
-            if(MousPosx<main_board_position_x&&MousPosy<pAreas[player].height){
+              int transx = (MousPosx-players[player].pos.x)/player_board_tile_width;
+              int transy = (MousPosy-players[player].pos.y)/player_board_tile_height;
 
-              int transx = (MousPosx-players[player].pos.x)/12;
-              int transy = (MousPosy-players[player].pos.y)/12;
               if(players[player].pboard.matrix[transy][transx]!=0){
                 idp[player]=testFull.matrix[transy][transx];
               }
@@ -1128,268 +1134,52 @@ int main() {
             }
 
             if(MousPosx<skip_turn_buttonR.x + skip_turn_buttonR.width &&MousPosx>skip_turn_buttonR.x &&MousPosy<skip_turn_buttonR.y+skip_turn_buttonR.height&&MousPosy>skip_turn_buttonR.y){
-              player_one_can_play =false;
+              players[player].canPlay =false;
             }
             if(MousPosx<flip_tile_buttonR.x + flip_tile_buttonR.width &&MousPosx>flip_tile_buttonR.x &&MousPosy<flip_tile_buttonR.y+flip_tile_buttonR.height&&MousPosy>flip_tile_buttonR.y){
               players[player].Hand[idp[player]-1]= flip_Matrix(players[player].Hand[idp[player]-1]);
               players[player].Hand[idp[player]-1]=to_Tile(players[player].Hand[idp[player]-1].matrix,players[player].Hand[idp[player]-1]);
             }
 
-          }else if(!player_one_can_play){
-            player=1;
-          }
-          break;
-        }
-
-//--------------------------------------------------------------------------------------------------------------------------------
-
-        case 1:{
-        /*  if(start_player_2_timer){
-             start_player_2_timer =false;
-          clock1.restart();
-        }*/
-
-          if (event.type == sf::Event::MouseButtonPressed&&player_two_can_play) {
-
-            if(MousPosx>main_board_position_x&&MousPosy>main_board_position_y&&MousPosx<main_board_position_x+ main_board_size* main_board_tile_width&&MousPosy<main_board_position_y+ main_board_size* main_board_tile_height){
-
-              int transx = (MousPosx-main_board_position_x)/20;
-              int transy = (MousPosy-main_board_position_y)/20;
-
-              if(is_Valid(players[player].Hand[idp[player]-1],GameBoard,transy,transx,players[player].id)){
-
-                players[player].score++;
-                GameBoard= do_Move(players[player].Hand[idp[player]-1],GameBoard,transy,transx,players[player].id);
-                players[player].pboard=is_Valid(testFull, players[player].pboard,transy,transx,players[player].Hand[idp[player]-1].size,idp[player]);
-                players[player].Have[idp[player]]=0;
-
-                if(players[player].score==21){
-
-                    String rep=to_string(player+1);
-                    GameOverText.setString("Game Over \nplayer " + rep + " wins");
-                    continue_playing = false;
-
-                }else{
-
-                  if(idp[player]<21&&players[player].Have[idp[player]+1]!=0){
-
-                    idp[player]++;
-
-                  }else{
-
-                    for(int i=0;i<21;i++){
-
-                      if(players[player].Have[i]!=0){
-
-                        idp[player]=i;
-
-                      }
-                    }
-                  }
-                  player=2;
-
-                }
+          }else if(!players[player].canPlay){
+            if(player+1<4){
+              player++;
+            }else{
+              player=0;
             }
           }
 
-              if(MousPosx<main_board_position_x&&MousPosy>pAreas[player].y+((pAreas[player].height/2)-players[player].pos.x)){
-                int transx = (MousPosx-players[player].pos.x)/12;
-                int transy = (MousPosy-players[player].pos.y)/12;
-                if(players[player].pboard.matrix[transy][transx]!=0){
-                  idp[player]=testFull.matrix[transy][transx];
-
-
-                }
-              }
-
-              if(MousPosx<rotate_Clock_WiseR.x + rotate_Clock_WiseR.width &&MousPosx>rotate_Clock_WiseR.x &&MousPosy<rotate_Clock_WiseR.y+rotate_Clock_WiseR.height&&MousPosy>rotate_Clock_WiseR.y){
-
-                players[player].Hand[idp[player]-1]= rotate_Clock_Wise(players[player].Hand[idp[player]-1]);
-                players[player].Hand[idp[player]-1]=to_Tile(players[player].Hand[idp[player]-1].matrix,players[player].Hand[idp[player]-1]);
-
-              }
-
-              if(MousPosx<rotate_Counter_Clock_WiseR.x + rotate_Counter_Clock_WiseR.width &&MousPosx>rotate_Counter_Clock_WiseR.x &&MousPosy<rotate_Counter_Clock_WiseR.y+rotate_Counter_Clock_WiseR.height&&MousPosy>rotate_Counter_Clock_WiseR.y){
-                players[player].Hand[idp[player]-1]= rotate_Counter_Clock_Wise(players[player].Hand[idp[player]-1]);
-                players[player].Hand[idp[player]-1]=to_Tile(players[player].Hand[idp[player]-1].matrix,players[player].Hand[idp[player]-1]);
-              }
-              if(MousPosx<skip_turn_buttonR.x + skip_turn_buttonR.width &&MousPosx>skip_turn_buttonR.x &&MousPosy<skip_turn_buttonR.y+skip_turn_buttonR.height&&MousPosy>skip_turn_buttonR.y){
-                player_two_can_play =false;
-              }
-              if(MousPosx<flip_tile_buttonR.x + flip_tile_buttonR.width &&MousPosx>flip_tile_buttonR.x &&MousPosy<flip_tile_buttonR.y+flip_tile_buttonR.height&&MousPosy>flip_tile_buttonR.y){
-                  players[player].Hand[idp[player]-1]= flip_Matrix(players[player].Hand[idp[player]-1]);
-                  players[player].Hand[idp[player]-1]=to_Tile(players[player].Hand[idp[player]-1].matrix,players[player].Hand[idp[player]-1]);
-                }
-
-            }else if(!player_two_can_play){
-              player=2;
-            }
-        break;
-
-        }
-//--------------------------------------------------------------------------------------------------------------------------------
-
-        case 2:{
-          sf::Clock clock3;
-          if (event.type == sf::Event::MouseButtonPressed&&player_three_can_play) {
-
-
-            if(MousPosx>main_board_position_x&&MousPosy>main_board_position_y&&MousPosx<main_board_position_x+ main_board_size* main_board_tile_width&&MousPosy<main_board_position_y+ main_board_size* main_board_tile_height){
-              int transx = (MousPosx-main_board_position_x)/20;
-              int transy = (MousPosy-main_board_position_y)/20;
-              if(is_Valid(players[player].Hand[idp[player]-1],GameBoard,transy,transx,players[player].id)){
-                players[player].score++;
-                GameBoard= do_Move(players[player].Hand[idp[player]-1],GameBoard,transy,transx,players[player].id);
-                players[player].pboard=is_Valid(testFull, players[player].pboard,transy,transx,players[player].Hand[idp[player]-1].size,idp[player]);
-                players[player].Have[idp[player]]=0;
-                if(players[player].score==21){
-                    String rep=to_string(player+1);
-                    GameOverText.setString("Game Over \nplayer " + rep + " wins");
-                    continue_playing = false;
-
-                }else{
-                  if(idp[player]<21&&players[player].Have[idp[player]+1]!=0){
-                    idp[player]++;
-                  }else{
-                    for(int i=0;i<21;i++){
-                      if(players[player].Have[i]!=0){
-                        idp[player]=i;
-                      }
-                    }
-                  }
-                  player=3;
-
-                }
-            }
-          }
-            if(MousPosx>main_board_position_x+ main_board_size* main_board_tile_width&&MousPosy<pAreas[player].height){
-              int transx = (MousPosx-players[player].pos.x)/12;
-              int transy = (MousPosy-players[player].pos.y)/12;
-
-              if(players[player].pboard.matrix[transy][transx]!=0){
-                idp[player]=testFull.matrix[transy][transx];
-
-
-              }
-            }
-            if(MousPosx<rotate_Clock_WiseR.x + rotate_Clock_WiseR.width &&MousPosx>rotate_Clock_WiseR.x &&MousPosy<rotate_Clock_WiseR.y+rotate_Clock_WiseR.height&&MousPosy>rotate_Clock_WiseR.y){
-
-              players[player].Hand[idp[player]-1]= rotate_Clock_Wise(players[player].Hand[idp[player]-1]);
-              players[player].Hand[idp[player]-1]=to_Tile(players[player].Hand[idp[player]-1].matrix,players[player].Hand[idp[player]-1]);
-
-            }if(MousPosx<rotate_Counter_Clock_WiseR.x + rotate_Counter_Clock_WiseR.width &&MousPosx>rotate_Counter_Clock_WiseR.x &&MousPosy<rotate_Counter_Clock_WiseR.y+rotate_Counter_Clock_WiseR.height&&MousPosy>rotate_Counter_Clock_WiseR.y){
-              players[player].Hand[idp[player]-1]= rotate_Counter_Clock_Wise(players[player].Hand[idp[player]-1]);
-              players[player].Hand[idp[player]-1]=to_Tile(players[player].Hand[idp[player]-1].matrix,players[player].Hand[idp[player]-1]);
-            }
-            if(MousPosx<skip_turn_buttonR.x + skip_turn_buttonR.width &&MousPosx>skip_turn_buttonR.x &&MousPosy<skip_turn_buttonR.y+skip_turn_buttonR.height&&MousPosy>skip_turn_buttonR.y){
-              player_three_can_play =false;
-            }
-            if(MousPosx<flip_tile_buttonR.x + flip_tile_buttonR.width &&MousPosx>flip_tile_buttonR.x &&MousPosy<flip_tile_buttonR.y+flip_tile_buttonR.height&&MousPosy>flip_tile_buttonR.y){
-              players[player].Hand[idp[player]-1]= flip_Matrix(players[player].Hand[idp[player]-1]);
-              players[player].Hand[idp[player]-1]=to_Tile(players[player].Hand[idp[player]-1].matrix,players[player].Hand[idp[player]-1]);
-            }
-          }else if(!player_three_can_play){
-            player=3;
-          }
-
-          break;
-        }
-//--------------------------------------------------------------------------------------------------------------------------------
-
-        case 3:{
-               sf::Clock clock4;
-               if (event.type == sf::Event::MouseButtonPressed&&player_four_can_play) {
-
-
-                 if(MousPosx>main_board_position_x&&MousPosy>main_board_position_y&&MousPosx<main_board_position_x+ main_board_size* main_board_tile_width&&MousPosy<main_board_position_y+ main_board_size* main_board_tile_height){
-                   int transx = (MousPosx-main_board_position_x)/20;
-                   int transy = (MousPosy-main_board_position_y)/20;
-                   if(is_Valid(players[player].Hand[idp[player]-1],GameBoard,transy,transx,players[player].id)){
-                     players[player].score++;
-                     GameBoard= do_Move(players[player].Hand[idp[player]-1],GameBoard,transy,transx,players[player].id);
-                     players[player].pboard=is_Valid(testFull, players[player].pboard,transy,transx,players[player].Hand[idp[player]-1].size,idp[player]);
-                     players[player].Have[idp[player]]=0;
-                     if(players[player].score==21){
-                         String rep=to_string(player+1);
-                         GameOverText.setString("Game Over \nplayer " + rep + " wins");
-                         continue_playing = false;
-
-                     }else{
-                       if(idp[player]<21&&players[player].Have[idp[player]+1]!=0){
-                         idp[player]++;
-                       }else{
-                         for(int i=0;i<21;i++){
-                           if(players[player].Have[i]!=0){
-                             idp[player]=i;
-                           }
-                         }
-                       }
-                       player=0;
-
-                     }
-                 }
-               }
-            if(MousPosx>main_board_position_x+ main_board_size* main_board_tile_width&&MousPosx<window_width&&MousPosy>pAreas[player].y+((pAreas[player].height/2)-players[player].pos.x)){
-
-              int transx = (MousPosx-players[player].pos.x)/12;
-
-
-              int transy = (MousPosy-players[player].pos.y)/12;
-
-              if(players[player].pboard.matrix[transy][transx]!=0){
-                idp[player]=testFull.matrix[transy][transx];
-
-
-              }
-            }
-            if(MousPosx<rotate_Clock_WiseR.x + rotate_Clock_WiseR.width &&MousPosx>rotate_Clock_WiseR.x &&MousPosy<rotate_Clock_WiseR.y+rotate_Clock_WiseR.height&&MousPosy>rotate_Clock_WiseR.y){
-
-              players[player].Hand[idp[player]-1]= rotate_Clock_Wise(players[player].Hand[idp[player]-1]);
-              players[player].Hand[idp[player]-1]=to_Tile(players[player].Hand[idp[player]-1].matrix,players[player].Hand[idp[player]-1]);
-
-            }if(MousPosx<rotate_Counter_Clock_WiseR.x + rotate_Counter_Clock_WiseR.width &&MousPosx>rotate_Counter_Clock_WiseR.x &&MousPosy<rotate_Counter_Clock_WiseR.y+rotate_Counter_Clock_WiseR.height&&MousPosy>rotate_Counter_Clock_WiseR.y){
-              players[player].Hand[idp[player]-1]= rotate_Counter_Clock_Wise(players[player].Hand[idp[player]-1]);
-              players[player].Hand[idp[player]-1]=to_Tile(players[player].Hand[idp[player]-1].matrix,players[player].Hand[idp[player]-1]);
-            }if(MousPosx<skip_turn_buttonR.x + skip_turn_buttonR.width &&MousPosx>skip_turn_buttonR.x &&MousPosy<skip_turn_buttonR.y+skip_turn_buttonR.height&&MousPosy>skip_turn_buttonR.y){
-              player_four_can_play =false;
-            }
-            if(MousPosx<flip_tile_buttonR.x + flip_tile_buttonR.width &&MousPosx>flip_tile_buttonR.x &&MousPosy<flip_tile_buttonR.y+flip_tile_buttonR.height&&MousPosy>flip_tile_buttonR.y){
-              players[player].Hand[idp[player]-1]= flip_Matrix(players[player].Hand[idp[player]-1]);
-              players[player].Hand[idp[player]-1]=to_Tile(players[player].Hand[idp[player]-1].matrix,players[player].Hand[idp[player]-1]);
-            }
-          }
-          else if(!player_four_can_play){
-            player=0;
-          }
-
-        break;
-      }
-    }
   }
-  if(player==0){
-   time1 = chrono.getElapsedTime();
-if(players[0].Time.sec>59){
-  players[0].Time.min=players[0].Time.min+1;
-  chrono.reset(true);
-  players[0].Time.sec=0;
-}
-  players[0].Time.sec=time1.asSeconds();
-  if(players[0].Time.sec<10){
-    if(players[0].Time.min<10){
-      PlayerClockDisplay[0].setString("0" + to_string(players[0].Time.min) + ":0" + to_string(players[0].Time.sec) );
+
+  //*************************************************************************************************************
+
+  //handling time in the game for each player
+ times[player] = chrono[player].getElapsedTime();
+
+if(players[player].Time.sec<60){
+  players[player].Time.sec=times[player].asSeconds();
+  if(players[player].Time.sec<10){
+    if(players[player].Time.min<10){
+      player_clock_display[player].setString("time:0" + to_string(players[player].Time.min) + ":0" + to_string(players[player].Time.sec) );
     }else{
-      PlayerClockDisplay[0].setString(to_string(players[0].Time.min) + ":0" + to_string(players[0].Time.sec) );
+      player_clock_display[player].setString("time:" + to_string(players[player].Time.min) + ":0" + to_string(players[player].Time.sec) );
     }
   }else{
 
-      if(players[0].Time.min<10){
-        PlayerClockDisplay[0].setString("0" + to_string(players[0].Time.min) + ":" + to_string(players[0].Time.sec) );
+      if(players[player].Time.min<10){
+        player_clock_display[player].setString("time:0" + to_string(players[player].Time.min) + ":" + to_string(players[player].Time.sec) );
       }else{
-        PlayerClockDisplay[0].setString(to_string(players[0].Time.min) + ":" + to_string(players[0].Time.sec) );
+        player_clock_display[player].setString("time:" +to_string(players[player].Time.min) + ":" + to_string(players[player].Time.sec) );
       }
-
-
 }
+if(players[player].Time.min>9){
+  players[player].canPlay=false;
+}
+}else{
+  chrono[player].reset();
+  players[player].Time.sec=0;
+  players[player].Time.min++;
+  chrono[player].resume();
 }
 
 //************************************************************************************************************************************************************************
@@ -1410,8 +1200,7 @@ if(players[0].Time.sec>59){
          return -1;
        }
     }
-    window.setSize(Vector2u(window_width,window_height));
-    if((player_one_can_play||player_two_can_play||player_three_can_play||player_four_can_play)&&continue_playing){
+    if((players[0].canPlay||players[1].canPlay||players[2].canPlay||players[3].canPlay)&&continue_playing){
 
     window.draw(map);
     window.draw(HeaderS);
@@ -1420,20 +1209,17 @@ if(players[0].Time.sec>59){
     window.draw(rotate_Counter_Clock_WiseRS);
     window.draw(rotate_Counter_Clock_WiseRS);
     window.draw(flip_tile_buttonRS);
-      window.draw(skip_turn_buttonRS);
-    for (int i = 0 ; i<=3;i++){
-      window.draw(pAreasShape[i]);
-    }
+    window.draw(skip_turn_buttonRS);
 
-    for (int i = 0 ; i<=3;i++){
+    for (int i=0 ; i<=3;i++){
+      window.draw(pAreasShape[i]);
+      window.draw(PlayerName[i]);
       window.draw(players[i].FullHand);
       window.draw(players[i].cTile);
-    }
-    for (int i=0 ; i<=3;i++){
-      window.draw(PlayerName[i]);
-    }
-    for (int i=0 ; i<=3;i++){
-      window.draw(PlayerClockDisplay[i]);
+      player_score_display[i].setString("score: " + to_string(players[i].score));
+      window.draw(player_score_display[i]);
+      window.draw(player_clock_display[i]);
+
     }
       window.draw(title);
       window.display();

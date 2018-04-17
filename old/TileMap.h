@@ -1,17 +1,13 @@
-#ifndef TileMap_H
-#define TileMap_H
+class TileMap : public sf::Drawable, public sf::Transformable
+{
 
-class TileMap  sf::Drawable, public sf::Transformable {
+    sf::VertexArray m_vertices;
+    sf::Texture m_tileset;
 private:
 
-  virtual void draw(sf::RenderTarget& target, sf::RenderStates states);
+  void draw(sf::RenderTarget& target, sf::RenderStates states);
 
 public:
-
-    bool load(const std::string& tileset, sf::Vector2u tileSize, const int* tiles, unsigned int width, unsigned int height,int offSetX,int offSetY);
-
-
+bool load(const std::string& tileset, sf::Vector2u tileSize,  int* tiles, unsigned int width, unsigned int height,int offSetX,int offSetY);
 
 };
-
-#endif

@@ -3,7 +3,8 @@
 - [ ] adding a main menu
 - [ ] adding new textures
 - [ ] separate the main file into smaller classes
-
+- [ ] add a splashscreen
+- [ ] add an algorithm to play with other players
 
 # done
 - [x] ability to rotate
@@ -14,5 +15,9 @@
 - [x] adding the detection algo
 - [x] add tile display areas
 - [x] add rotation buttons
-- [x] matrix mirror algorithme
+- [x] matrix mirror algorithm
 - [x] adding the timer
+- [x] make only one playing algorithm for the four players
+- [x] add score text to the Game
+- [x] add time text to the game
+- [x] add game over screen
