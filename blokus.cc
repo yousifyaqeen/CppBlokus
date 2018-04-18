@@ -5,15 +5,16 @@
 #include <stdio.h>
 #include <ctime>
 #include "Chronometer.hpp"
+#include <SFML/Audio.hpp>
 
 
 using namespace std;
 using namespace sf;
 
 //height of the window
- int window_height                = 700 ;
+int window_height                = 700 ;
 //width of the window
- int window_width                 = 1080 ;
+int window_width                 = 1080 ;
 //the window's background color
 #define BgColor (89,88,86,255)
 //the width of the main board tiles(same as the size in the texture file)
@@ -345,32 +346,32 @@ tile rotate_Clock_Wise(tile input){
 //**************************************************************
 tile rotate_Counter_Clock_Wise(tile input)
 {
-    // Consider all squares one by one
-    for (int x = 0; x < tile_matrix_size / 2; x++)
+  // Consider all squares one by one
+  for (int x = 0; x < tile_matrix_size / 2; x++)
+  {
+
+    // Consider elements in group of 4 in
+    // current square
+    for (int y = x; y < tile_matrix_size-x-1; y++)
     {
+      // store current cell in temp variable
+      int temp =  input.matrix[x][y];
 
-        // Consider elements in group of 4 in
-        // current square
-        for (int y = x; y < tile_matrix_size-x-1; y++)
-        {
-            // store current cell in temp variable
-            int temp =  input.matrix[x][y];
+      // move values from right to top
+      input.matrix[x][y] = input.matrix[y][tile_matrix_size-1-x];
 
-            // move values from right to top
-             input.matrix[x][y] = input.matrix[y][tile_matrix_size-1-x];
+      // move values from bottom to right
+      input.matrix[y][tile_matrix_size-1-x] =  input.matrix[tile_matrix_size-1-x][tile_matrix_size-1-y];
 
-            // move values from bottom to right
-             input.matrix[y][tile_matrix_size-1-x] =  input.matrix[tile_matrix_size-1-x][tile_matrix_size-1-y];
+      // move values from left to bottom
+      input.matrix[tile_matrix_size-1-x][tile_matrix_size-1-y] =  input.matrix[tile_matrix_size-1-y][x];
 
-            // move values from left to bottom
-             input.matrix[tile_matrix_size-1-x][tile_matrix_size-1-y] =  input.matrix[tile_matrix_size-1-y][x];
-
-            // assign temp to left
-             input.matrix[tile_matrix_size-1-y][x] = temp;
-        }
+      // assign temp to left
+      input.matrix[tile_matrix_size-1-y][x] = temp;
     }
+  }
 
-    return input;
+  return input;
 }
 
 //*************************************************************
@@ -730,23 +731,31 @@ player set_Player(int id,sf::Color color,int time,tile tiles[]){
 tile flip_Matrix(tile input){
 
 
-    for(int i=0;i<5;i++){
-      int tmp;
-      tmp =input.matrix[i][0];
-      input.matrix[i][0]=input.matrix[i][4];
-      input.matrix[i][4]=tmp;
-      tmp =input.matrix[i][1];
-      input.matrix[i][1]=input.matrix[i][3];
-      input.matrix[i][3]=tmp;
-    }
+  for(int i=0;i<5;i++){
+    int tmp;
+    tmp =input.matrix[i][0];
+    input.matrix[i][0]=input.matrix[i][4];
+    input.matrix[i][4]=tmp;
+    tmp =input.matrix[i][1];
+    input.matrix[i][1]=input.matrix[i][3];
+    input.matrix[i][3]=tmp;
+  }
   return input= to_Tile(input.matrix,input);
 }
 //**************************************************************
 
 int main() {
+  bool start_game =true;
+
   bool  continue_playing = true ;
+
   Time times[4];
+
   sftools::Chronometer chrono[4];
+
+  int current_player=0;
+
+  TileMap map;
 
 
   sf::View view;
@@ -780,22 +789,19 @@ int main() {
 
   }
 
-
   int idp[4];
   for(int i=0;i<4;i++){
     idp[i]=1;
   }
 
+  sf::Text title("Blokus", font, 50);
+  title.setPosition(Vector2f(((window_width/2 - title.getLocalBounds().width/2)),0.0));
 
-  TileMap map;
-
-  TileMap p1;
-  RenderWindow window(VideoMode(window_width, window_height), "Blokus");
+  RenderWindow window(VideoMode(window_width, window_height), title.getString());
 
   //-----------------------------------------------------------------------------------------
   //Initialisation des variables concernantes les zones des joueurs
   Rectangle pAreas [4] ;
-
   pAreas[0].x =out_line_size;
   pAreas[0].y =out_line_size;
   pAreas[0].width=main_board_position_x-(2*out_line_size);
@@ -805,7 +811,7 @@ int main() {
   pAreas[1].x =out_line_size;
   pAreas[1].y =window_height/2 +(2*out_line_size);
   pAreas[1].width=main_board_position_x-(2*out_line_size);
-  pAreas[1].height=window_height/2-out_line_size;
+  pAreas[1].height=window_height/2-3*out_line_size;
   pAreas[1].color= Color(116, 185, 255,255);
 
   pAreas[2].x =main_board_position_x + ( main_board_size* main_board_tile_width)+out_line_size ;
@@ -818,15 +824,20 @@ int main() {
   pAreas[3].x =main_board_position_x + ( main_board_size* main_board_tile_width)+out_line_size;
   pAreas[3].y =window_height/2+(2*out_line_size);
   pAreas[3].width=main_board_position_x-(2*out_line_size);
-  pAreas[3].height=window_height/2-out_line_size;
+  pAreas[3].height=window_height/2-3*out_line_size;//multiply by 3 because of the middle outline
   pAreas[3].color= Color(255, 234, 167,255);
   //---------------------------------------------------
+
+
+
   Rectangle Header;
   Header.x      =main_board_position_x+out_line_size;
   Header.y      =out_line_size;
   Header.width= main_board_size* main_board_tile_width-out_line_size;
   Header.height=main_board_position_y-out_line_size;
   Header.color= Color(sf::Color BgColor);
+
+
 
   Rectangle Footer;
   Footer.x      = main_board_position_x;
@@ -836,42 +847,25 @@ int main() {
   Footer.color  = Color(sf::Color BgColor);
 
 
-//**************************************************************
 
 
- Rectangle skip_turn_buttonR;
- skip_turn_buttonR.width=window_width*0.1;
- skip_turn_buttonR.height=window_height*0.1;
- skip_turn_buttonR.x =Footer.x+Footer.width/2-skip_turn_buttonR.width/2;
- skip_turn_buttonR.y =main_board_position_y-skip_turn_buttonR.height;
- sf::Texture skip_turn_buttonRTexture;
- //loading and checking for the files
- if (!skip_turn_buttonRTexture.loadFromFile("src/skip.png"))
- {
-   cout << "cant load the Texture file associated to rotate_Counter_Clock_Wise button : src/CCWrotate.png";
- }
+  Rectangle skip_turn_buttonR;
+  skip_turn_buttonR.width=window_width*0.1;
+  skip_turn_buttonR.height=window_height*0.1;
+  skip_turn_buttonR.x =Footer.x+Footer.width/2-skip_turn_buttonR.width/2;
+  skip_turn_buttonR.y =main_board_position_y-skip_turn_buttonR.height;
 
- RectangleShape skip_turn_buttonRS;
- skip_turn_buttonRS.setSize(Vector2f(skip_turn_buttonR.width,skip_turn_buttonR.height));
- skip_turn_buttonRS.setPosition(skip_turn_buttonR.x,skip_turn_buttonR.y);
- skip_turn_buttonRS.setTexture(&skip_turn_buttonRTexture);
 
- Rectangle flip_tile_buttonR;
- flip_tile_buttonR.width=window_width*0.1;
- flip_tile_buttonR.height=window_height*0.1;
- flip_tile_buttonR.x =Footer.x+Footer.width/2-flip_tile_buttonR.width/2;
- flip_tile_buttonR.y =Footer.y+(Footer.height/2)-flip_tile_buttonR.height/2;
- sf::Texture flip_tile_buttonRTexture;
- //loading and checking for the files
- if (!flip_tile_buttonRTexture.loadFromFile("src/flip.png"))
- {
-   cout << "cant load the Texture file associated to rotate_Counter_Clock_Wise button : src/CCWrotate.png";
- }
 
- RectangleShape flip_tile_buttonRS;
- flip_tile_buttonRS.setSize(Vector2f(flip_tile_buttonR.width,flip_tile_buttonR.height));
- flip_tile_buttonRS.setPosition(flip_tile_buttonR.x,flip_tile_buttonR.y);
- flip_tile_buttonRS.setTexture(&flip_tile_buttonRTexture);
+
+
+  Rectangle flip_tile_buttonR;
+  flip_tile_buttonR.width=window_width*0.1;
+  flip_tile_buttonR.height=window_height*0.1;
+  flip_tile_buttonR.x =Footer.x+Footer.width/2-flip_tile_buttonR.width/2;
+  flip_tile_buttonR.y =Footer.y+(Footer.height/2)-flip_tile_buttonR.height/2;
+
+
 
 
   Rectangle rotate_Counter_Clock_WiseR;
@@ -879,12 +873,7 @@ int main() {
   rotate_Counter_Clock_WiseR.height=window_height*0.1;
   rotate_Counter_Clock_WiseR.x =Footer.x+Footer.width/4-rotate_Counter_Clock_WiseR.width/2;
   rotate_Counter_Clock_WiseR.y =Footer.y+Footer.height/2-rotate_Counter_Clock_WiseR.height/2;;
-  sf::Texture rotate_Counter_Clock_WiseRTexture;
-  //loading and checking for the files
-  if (!rotate_Counter_Clock_WiseRTexture.loadFromFile("src/CCWrotate.png"))
-  {
-    cout << "cant load the Texture file associated to rotate_Counter_Clock_Wise button : src/CCWrotate.png";
-  }
+
 
 
   Rectangle rotate_Clock_WiseR;
@@ -892,51 +881,104 @@ int main() {
   rotate_Clock_WiseR.height=window_height*0.1;
   rotate_Clock_WiseR.x =Footer.x+Footer.width/2+Footer.width/4-rotate_Clock_WiseR.width/2;
   rotate_Clock_WiseR.y =Footer.y+Footer.height/2-rotate_Clock_WiseR.height/2;;
+
+
+
+  Rectangle start_game_buttonR;
+  start_game_buttonR.width=window_width*0.15;
+  start_game_buttonR.height=window_height*0.15;
+  start_game_buttonR.x =window_width/2-start_game_buttonR.width/2;
+  start_game_buttonR.y =window_height/3;
+
+
+  player players[4];
+  players[0]=set_Player(1,sf::Color::Red,time_for_each_player,tiles);
+  players[1]=set_Player(2,sf::Color::Blue,time_for_each_player,tiles);
+  players[2]=set_Player(3,sf::Color::Green,time_for_each_player,tiles);
+  players[3]=set_Player(4,sf::Color::Yellow,time_for_each_player,tiles);
+
+  for(int i=0;i<4;i++){
+    players[i].pos.x=pAreas[i].x + pAreas[i].width/2-( player_board_tile_width* player_board_matrix_height)/2;
+    players[i].pos.y= pAreas[i].y + pAreas[i].height - player_board_tile_height* player_board_tile_height -overflowcorrect;
+
+  }
+
+
+  Rectangle playerTileDisplay[4];
+
+  for(int i=0;i<4;i++){
+    playerTileDisplay[i].width=player_board_tile_width*tile_matrix_size;
+    playerTileDisplay[i].height=player_board_tile_height*tile_matrix_size;
+    playerTileDisplay[i].y=pAreas[i].y +pAreas[i].height/2 - playerTileDisplay[i].height;
+    playerTileDisplay[i].x=pAreas[i].x+pAreas[i].width/2 -playerTileDisplay[i].width/2;
+  }
+
+  sf::Texture skip_turn_buttonRTexture;
+
+  sf::Texture flip_tile_buttonRTexture;
+
+  sf::Texture rotate_Counter_Clock_WiseRTexture;
+
   sf::Texture rotate_Clock_WiseRTexture;
+
+  sf::Texture start_game_buttonRTexture;
+
+
   if (!rotate_Clock_WiseRTexture.loadFromFile("src/CWrotate.png"))
   {
     cout << "cant load the Texture file associated to rotate_Clock_Wise button : src/CWrotate.png";
   }
 
+  if (!skip_turn_buttonRTexture.loadFromFile("src/skip.png"))
+  {
+    cout << "cant load the Texture file associated to rotate_Counter_Clock_Wise button : src/CCWrotate.png";
+  }
+
+  if (!flip_tile_buttonRTexture.loadFromFile("src/flip.png"))
+  {
+    cout << "cant load the Texture file associated to rotate_Counter_Clock_Wise button : src/CCWrotate.png";
+  }
+
+  if (!rotate_Counter_Clock_WiseRTexture.loadFromFile("src/CCWrotate.png"))
+  {
+    cout << "cant load the Texture file associated to rotate_Counter_Clock_Wise button : src/CCWrotate.png";
+  }
+
+  if (!start_game_buttonRTexture.loadFromFile("src/startgame.png"))
+  {
+    cout << "cant load the Texture file associated to rotate_Clock_Wise button : src/CWrotate.png";
+  }
 
 
+  RectangleShape rotate_Counter_Clock_WiseRS;
+  rotate_Counter_Clock_WiseRS.setSize(Vector2f(rotate_Clock_WiseR.width,rotate_Counter_Clock_WiseR.height));
+  rotate_Counter_Clock_WiseRS.setPosition(rotate_Counter_Clock_WiseR.x,rotate_Counter_Clock_WiseR.y);
+  rotate_Counter_Clock_WiseRS.setTexture(&rotate_Counter_Clock_WiseRTexture);
+
+  RectangleShape rotate_Clock_WiseRS;
+  rotate_Clock_WiseRS.setSize(Vector2f(rotate_Clock_WiseR.width,rotate_Clock_WiseR.height));
+  rotate_Clock_WiseRS.setPosition(rotate_Clock_WiseR.x,rotate_Clock_WiseR.y);
+  rotate_Clock_WiseRS.setTexture(&rotate_Clock_WiseRTexture);
 
 
-      RectangleShape rotate_Counter_Clock_WiseRS;
-      rotate_Counter_Clock_WiseRS.setSize(Vector2f(rotate_Clock_WiseR.width,rotate_Counter_Clock_WiseR.height));
-      rotate_Counter_Clock_WiseRS.setPosition(rotate_Counter_Clock_WiseR.x,rotate_Counter_Clock_WiseR.y);
-      rotate_Counter_Clock_WiseRS.setTexture(&rotate_Counter_Clock_WiseRTexture);
-
-      RectangleShape rotate_Clock_WiseRS;
-      rotate_Clock_WiseRS.setSize(Vector2f(rotate_Clock_WiseR.width,rotate_Clock_WiseR.height));
-      rotate_Clock_WiseRS.setPosition(rotate_Clock_WiseR.x,rotate_Clock_WiseR.y);
-      rotate_Clock_WiseRS.setTexture(&rotate_Clock_WiseRTexture);
-  //*********************************************************************************************************
-
-  sf::Text title("Blokus", font, 50);
-  title.setPosition(Vector2f(((window_width/2 - title.getLocalBounds().width/2)),0.0));
-  //*********************************************************************************************************
+  RectangleShape flip_tile_buttonRS;
+  flip_tile_buttonRS.setSize(Vector2f(flip_tile_buttonR.width,flip_tile_buttonR.height));
+  flip_tile_buttonRS.setPosition(flip_tile_buttonR.x,flip_tile_buttonR.y);
+  flip_tile_buttonRS.setTexture(&flip_tile_buttonRTexture);
 
 
+  RectangleShape skip_turn_buttonRS;
+  skip_turn_buttonRS.setSize(Vector2f(skip_turn_buttonR.width,skip_turn_buttonR.height));
+  skip_turn_buttonRS.setPosition(skip_turn_buttonR.x,skip_turn_buttonR.y);
+  skip_turn_buttonRS.setTexture(&skip_turn_buttonRTexture);
 
-  player players[4];
-  players[0]=set_Player(1,sf::Color::Red,time_for_each_player,tiles);
-  players[0].pos.x=pAreas[0].width/2-( player_board_tile_width* player_board_matrix_height)/2;
-  players[0].pos.y= pAreas[0].height - player_board_tile_height* player_board_tile_height -overflowcorrect;
 
-  players[1]=set_Player(2,sf::Color::Blue,time_for_each_player,tiles);
-  players[1].pos.x=pAreas[1].width/2-( player_board_tile_width* player_board_matrix_height)/2 ;
-  players[1].pos.y=  pAreas[1].y + pAreas[1].height - player_board_tile_height* player_board_matrix_width -overflowcorrect;
+  RectangleShape start_game_buttonRS;
+  start_game_buttonRS.setSize(Vector2f(start_game_buttonR.width,start_game_buttonR.height));
+  start_game_buttonRS.setPosition(start_game_buttonR.x,start_game_buttonR.y);
+  start_game_buttonRS.setTexture(&start_game_buttonRTexture);
 
-  players[2]=set_Player(3,sf::Color::Green,time_for_each_player,tiles);
-  players[2].pos.x =pAreas[2].x + pAreas[2].width/2-( player_board_tile_width* player_board_matrix_height)/2 ;
-  players[2].pos.y=pAreas[2].height - player_board_tile_height* player_board_matrix_width -overflowcorrect;
 
-  players[3]=set_Player(4,sf::Color::Yellow,time_for_each_player,tiles);
-  players[3].pos.x =pAreas[3].x + pAreas[3].width/2 - ( player_board_tile_width* player_board_matrix_height)/2 ;
-  players[3].pos.y =  pAreas[3].y + pAreas[3].height - player_board_tile_height* player_board_matrix_width -overflowcorrect;
-
-  //*********************
   sf::Text PlayerName[4];
 
   for(int i=0 ; i<=3;i++){
@@ -952,6 +994,7 @@ int main() {
 
 
   sf::Text player_score_display[4];
+
   for(int i=0 ; i<4;i++){
 
     player_score_display[i].setString("score :");
@@ -966,83 +1009,95 @@ int main() {
 
   for(int i=0 ; i<4;i++){
 
-    player_clock_display[i].setString("time :00:00");
+    player_clock_display[i].setString("time:00:00");
     player_clock_display[i].setFont(font);
     player_clock_display[i].setCharacterSize (20);
     player_clock_display[i].setStyle(sf::Text::Bold);
     player_clock_display[i].setColor(sf::Color::Black);
-    player_clock_display[i].setPosition(Vector2f(pAreas[i].x+pAreas[i].width-player_clock_display[i].getLocalBounds().width,  PlayerName[i].getLocalBounds().height*2 + PlayerName[i].getPosition().y ));
+    player_clock_display[i].setPosition(Vector2f(pAreas[i].x+pAreas[i].width-player_clock_display[i].getLocalBounds().width-2*out_line_size,  PlayerName[i].getLocalBounds().height*2 + PlayerName[i].getPosition().y ));
 
   }
 
-
-  //****************************************************************************************************
-  //***************************************************************************
-  Rectangle playerTileDisplay[4];
-  playerTileDisplay[0].width=60;
-  playerTileDisplay[0].height=60;
-  playerTileDisplay[0].y=(players[0].pos.y -(PlayerName[0].getLocalBounds().height +PlayerName[0].getPosition().y ))/2;
-  playerTileDisplay[0].x=pAreas[0].width/2 -playerTileDisplay[0].width/2;
-
-  playerTileDisplay[1].width=60;
-  playerTileDisplay[1].height=60;
-  playerTileDisplay[1].y=(players[1].pos.y +(PlayerName[1].getLocalBounds().height +PlayerName[1].getPosition().y ))/2;
-  playerTileDisplay[1].x=pAreas[1].width/2 -playerTileDisplay[1].width/2;
-
-  playerTileDisplay[2].width=60;
-  playerTileDisplay[2].height=60;
-  playerTileDisplay[2].y=(players[2].pos.y -(PlayerName[2].getLocalBounds().height +PlayerName[2].getPosition().y ))/2;
-  playerTileDisplay[2].x=pAreas[2].x+ pAreas[2].width/2 -playerTileDisplay[2].width/2;
-
-  playerTileDisplay[3].width=60;
-  playerTileDisplay[3].height=60;
-  playerTileDisplay[3].y=(players[3].pos.y +(PlayerName[1].getLocalBounds().height +PlayerName[1].getPosition().y ))/2;
-  playerTileDisplay[3].x=pAreas[3].x+ pAreas[3].width/2 -playerTileDisplay[2].width/2;
-
-
-  TileMap piece1;
   sf::Text GameOverText;
+  GameOverText.setPosition(Vector2f(window_width/2-GameOverText.getLocalBounds().width/2,window_height/2));
+  GameOverText.setFont(font);
+  GameOverText.setCharacterSize (50);
+  GameOverText.setStyle(sf::Text::Bold);
+  GameOverText.setColor(sf::Color::Red);
 
-  //*********************************************************************************************************
-  int player=0;
 
+  RectangleShape pAreasShape[4];
+
+  for(int i=0 ; i <=3;i++){
+    pAreasShape[i].setSize(Vector2f(pAreas[i].width,pAreas[i].height));
+    pAreasShape[i].setPosition(pAreas[i].x,pAreas[i].y);
+    pAreasShape[i].setFillColor(pAreas[i].color);
+    pAreasShape[i].setOutlineThickness(out_line_size);
+  }
+
+  RectangleShape HeaderS;
+  HeaderS.setSize(Vector2f(Header.width,Header.height));
+  HeaderS.setPosition(Header.x,Header.y);
+  HeaderS.setFillColor(Header.color);
+
+  RectangleShape FooterS;
+  FooterS.setSize(Vector2f(Footer.width,Footer.height));
+  FooterS.setPosition(Footer.x,Footer.y);
+  FooterS.setFillColor(Footer.color);
+  RectangleShape contain[4];
+//for debug purposes only to be removed after
+for(int i=0 ; i<4;i++){
+  contain[i].setSize(Vector2f(tile_matrix_size* player_board_tile_width,tile_matrix_size* player_board_tile_width));
+  contain[i].setPosition(playerTileDisplay[i].x ,playerTileDisplay[i].y);
+  contain[i].setOutlineThickness(out_line_size);
+  contain[i].setFillColor(sf::Color::Transparent);
+}
+
+SoundBuffer placebuffer;
+placebuffer.loadFromFile("place.wav");
+sf::Sound placesound;
+placesound.setBuffer(placebuffer);
+
+SoundBuffer pickbuffer;
+pickbuffer.loadFromFile("pick.wav");
+sf::Sound picksound;
+picksound.setBuffer(pickbuffer);
+
+SoundBuffer flipbuffer;
+flipbuffer.loadFromFile("flip.wav");
+sf::Sound flipsound;
+flipsound.setBuffer(flipbuffer);
+
+SoundBuffer rotatebuffer;
+rotatebuffer.loadFromFile("rotate.wav");
+sf::Sound rotatesound;
+rotatesound.setBuffer(rotatebuffer);
+
+SoundBuffer winbuffer;
+winbuffer.loadFromFile("win.wav");
+sf::Sound winsound;
+winsound.setBuffer(winbuffer);
+
+
+bool playwinsound=true;
+
+
+//for debug purposes only
   Board GameBoard = set_Board(iniMap);
   playerHand testFull=set_Player_Hand(tilesTableWithEachPiece);
+
   while (window.isOpen()) {
     window.setSize(Vector2u(window_width,window_height));
 
-    GameOverText.setPosition(Vector2f(window_width/2-GameOverText.getLocalBounds().width/2,window_height/2));
-    GameOverText.setFont(font);
-    GameOverText.setCharacterSize (50);
-    GameOverText.setStyle(sf::Text::Bold);
-    GameOverText.setColor(sf::Color::Red);
-    RectangleShape pAreasShape[4];
-
-    for(int i=0 ; i <=3;i++){
-      pAreasShape[i].setSize(Vector2f(pAreas[i].width,pAreas[i].height));
-      pAreasShape[i].setPosition(pAreas[i].x,pAreas[i].y);
-      pAreasShape[i].setFillColor(pAreas[i].color);
-      pAreasShape[i].setOutlineThickness(out_line_size);
+    for(int i=0 ; i <4;i++){
+      if(i==current_player){
+        pAreasShape[i].setOutlineColor(sf::Color::Red);
+        contain[i].setOutlineColor(sf::Color::Red);
+      }else{
+        pAreasShape[i].setOutlineColor(sf::Color::White);
+        contain[i].setOutlineColor(sf::Color::White);
+      }
     }
-
-
-    RectangleShape HeaderS;
-    HeaderS.setSize(Vector2f(Header.width,Header.height));
-    HeaderS.setPosition(Header.x,Header.y);
-  HeaderS.setFillColor(Header.color);
-
-    RectangleShape FooterS;
-    FooterS.setSize(Vector2f(Footer.width,Footer.height));
-    FooterS.setPosition(Footer.x,Footer.y);
-    FooterS.setFillColor(Footer.color);
-    window.clear(sf::Color BgColor);
-
-    for(int i=0 ; i <3;i++){
-      if(i==player){
-      pAreasShape[i].setOutlineColor(sf::Color::Red);
-    }else{
-      pAreasShape[i].setOutlineColor(sf::Color::White);
-    }}
     Event event;
     while (window.pollEvent(event)) {
 
@@ -1060,184 +1115,207 @@ int main() {
 
         }
       }
-  //*********************************************************************************************************************************************************
+      //*********************************************************************************************************************************************************
 
-  //game play algorthme for each player
+      //game play algorthme for each player
       int MousPosx = (int) event.mouseButton.x;
       int MousPosy = (int)event.mouseButton.y;
-          chrono[player].resume();
+      chrono[current_player].resume();
 
-          if (event.type == sf::Event::MouseButtonPressed&&players[player].canPlay) {
+      if (event.type == sf::Event::MouseButtonPressed&&players[current_player].canPlay) {
 
 
-            if(MousPosx>main_board_position_x&&MousPosy>main_board_position_y&&MousPosx<main_board_position_x+ main_board_size* main_board_tile_width&&MousPosy<main_board_position_y+ main_board_size* main_board_tile_height){
+        if(MousPosx>main_board_position_x&&MousPosy>main_board_position_y&&MousPosx<main_board_position_x+ main_board_size* main_board_tile_width&&MousPosy<main_board_position_y+ main_board_size* main_board_tile_height){
 
-              int transx = (MousPosx-main_board_position_x)/20;
-              int transy = (MousPosy-main_board_position_y)/20;
+          int transx = (MousPosx-main_board_position_x)/20;
+          int transy = (MousPosy-main_board_position_y)/20;
 
-              if(is_Valid(players[player].Hand[idp[player]-1],GameBoard,transy,transx,players[player].id)){
+          if(is_Valid(players[current_player].Hand[idp[current_player]-1],GameBoard,transy,transx,players[current_player].id)){
 
-                players[player].score++;
-                GameBoard= do_Move(players[player].Hand[idp[player]-1],GameBoard,transy,transx,players[player].id);
-                players[player].pboard=is_Valid(testFull, players[player].pboard,transy,transx,players[player].Hand[idp[player]-1].size,idp[player]);
-                players[player].Have[idp[player]]=0;
-                chrono[player].pause();
-                if(players[player].score==21){
+            players[current_player].score++;
+            GameBoard= do_Move(players[current_player].Hand[idp[current_player]-1],GameBoard,transy,transx,players[current_player].id);
+            players[current_player].pboard=is_Valid(testFull, players[current_player].pboard,transy,transx,players[current_player].Hand[idp[current_player]-1].size,idp[current_player]);
+            players[current_player].Have[idp[current_player]]=0;
+            chrono[current_player].pause();
+            placesound.play();
 
-                    String rep=to_string(player+1);
-                    GameOverText.setString("Game Over \nplayer " + rep + " wins");
-                    continue_playing = false;
+            if(players[current_player].score==21){
 
-                }else{
-                  if(idp[player]<21&&players[player].Have[idp[player]+1]!=0){
+              String rep=to_string(current_player+1);
+              GameOverText.setString("Game Over \nplayer " + rep + " wins");
+              continue_playing = false;
 
-                    idp[player]++;
-
-                  }else{
-
-                    for(int i=0;i<21;i++){
-
-                      if(players[player].Have[i]!=0){
-
-                        idp[player]=i;
-                      }
-                    }
-                  }
-
-                }
-                if(player+1<4){
-                  player++;
-                }else{
-                  player=0;
-                }
-            }
-
-          }
-            if(MousPosx>players[player].pos.x&&MousPosx<players[player].pos.x+(12*23)&&MousPosy<players[player].pos.y+(player_board_tile_height*player_board_matrix_height)&&MousPosy>players[player].pos.y){
-
-              int transx = (MousPosx-players[player].pos.x)/player_board_tile_width;
-              int transy = (MousPosy-players[player].pos.y)/player_board_tile_height;
-
-              if(players[player].pboard.matrix[transy][transx]!=0){
-                idp[player]=testFull.matrix[transy][transx];
-              }
-            }
-            if(MousPosx<rotate_Clock_WiseR.x + rotate_Clock_WiseR.width &&MousPosx>rotate_Clock_WiseR.x &&MousPosy<rotate_Clock_WiseR.y+rotate_Clock_WiseR.height&&MousPosy>rotate_Clock_WiseR.y){
-
-              players[player].Hand[idp[player]-1]= rotate_Clock_Wise(players[player].Hand[idp[player]-1]);
-              players[player].Hand[idp[player]-1]=to_Tile(players[player].Hand[idp[player]-1].matrix,players[player].Hand[idp[player]-1]);
-            }
-
-            if(MousPosx<rotate_Counter_Clock_WiseR.x + rotate_Counter_Clock_WiseR.width &&MousPosx>rotate_Counter_Clock_WiseR.x &&MousPosy<rotate_Counter_Clock_WiseR.y+rotate_Counter_Clock_WiseR.height&&MousPosy>rotate_Counter_Clock_WiseR.y){
-              players[player].Hand[idp[player]-1]= rotate_Counter_Clock_Wise(players[player].Hand[idp[player]-1]);
-              players[player].Hand[idp[player]-1]=to_Tile(players[player].Hand[idp[player]-1].matrix,players[player].Hand[idp[player]-1]);
-            }
-
-            if(MousPosx<skip_turn_buttonR.x + skip_turn_buttonR.width &&MousPosx>skip_turn_buttonR.x &&MousPosy<skip_turn_buttonR.y+skip_turn_buttonR.height&&MousPosy>skip_turn_buttonR.y){
-              players[player].canPlay =false;
-            }
-            if(MousPosx<flip_tile_buttonR.x + flip_tile_buttonR.width &&MousPosx>flip_tile_buttonR.x &&MousPosy<flip_tile_buttonR.y+flip_tile_buttonR.height&&MousPosy>flip_tile_buttonR.y){
-              players[player].Hand[idp[player]-1]= flip_Matrix(players[player].Hand[idp[player]-1]);
-              players[player].Hand[idp[player]-1]=to_Tile(players[player].Hand[idp[player]-1].matrix,players[player].Hand[idp[player]-1]);
-            }
-
-          }else if(!players[player].canPlay){
-            if(player+1<4){
-              player++;
             }else{
-              player=0;
+              if(idp[current_player]<21&&players[current_player].Have[idp[current_player]+1]!=0){
+
+                idp[current_player]++;
+
+              }else{
+
+                for(int i=0;i<21;i++){
+
+                  if(players[current_player].Have[i]!=0){
+
+                    idp[current_player]=i;
+                  }
+                }
+              }
+
+            }
+            if(current_player+1<4){
+              current_player++;
+            }else{
+              current_player=0;
             }
           }
 
-  }
+        }
+        if(MousPosx>players[current_player].pos.x&&MousPosx<players[current_player].pos.x+(12*23)&&MousPosy<players[current_player].pos.y+(player_board_tile_height*player_board_matrix_height)&&MousPosy>players[current_player].pos.y){
 
-  //*************************************************************************************************************
+          int transx = (MousPosx-players[current_player].pos.x)/player_board_tile_width;
+          int transy = (MousPosy-players[current_player].pos.y)/player_board_tile_height;
 
-  //handling time in the game for each player
- times[player] = chrono[player].getElapsedTime();
+          if(players[current_player].pboard.matrix[transy][transx]!=0){
+            idp[current_player]=testFull.matrix[transy][transx];
+            picksound.play();
+          }
+        }
+        if(MousPosx<rotate_Clock_WiseR.x + rotate_Clock_WiseR.width &&MousPosx>rotate_Clock_WiseR.x &&MousPosy<rotate_Clock_WiseR.y+rotate_Clock_WiseR.height&&MousPosy>rotate_Clock_WiseR.y){
 
-if(players[player].Time.sec<60){
-  players[player].Time.sec=times[player].asSeconds();
-  if(players[player].Time.sec<10){
-    if(players[player].Time.min<10){
-      player_clock_display[player].setString("time:0" + to_string(players[player].Time.min) + ":0" + to_string(players[player].Time.sec) );
-    }else{
-      player_clock_display[player].setString("time:" + to_string(players[player].Time.min) + ":0" + to_string(players[player].Time.sec) );
-    }
-  }else{
+          players[current_player].Hand[idp[current_player]-1]= rotate_Clock_Wise(players[current_player].Hand[idp[current_player]-1]);
+          players[current_player].Hand[idp[current_player]-1]=to_Tile(players[current_player].Hand[idp[current_player]-1].matrix,players[current_player].Hand[idp[current_player]-1]);
+          rotatesound.play();
 
-      if(players[player].Time.min<10){
-        player_clock_display[player].setString("time:0" + to_string(players[player].Time.min) + ":" + to_string(players[player].Time.sec) );
-      }else{
-        player_clock_display[player].setString("time:" +to_string(players[player].Time.min) + ":" + to_string(players[player].Time.sec) );
+        }
+
+        if(MousPosx<rotate_Counter_Clock_WiseR.x + rotate_Counter_Clock_WiseR.width &&MousPosx>rotate_Counter_Clock_WiseR.x &&MousPosy<rotate_Counter_Clock_WiseR.y+rotate_Counter_Clock_WiseR.height&&MousPosy>rotate_Counter_Clock_WiseR.y){
+          players[current_player].Hand[idp[current_player]-1]= rotate_Counter_Clock_Wise(players[current_player].Hand[idp[current_player]-1]);
+          players[current_player].Hand[idp[current_player]-1]=to_Tile(players[current_player].Hand[idp[current_player]-1].matrix,players[current_player].Hand[idp[current_player]-1]);
+          rotatesound.play();
+                }
+
+        if(MousPosx<skip_turn_buttonR.x + skip_turn_buttonR.width &&MousPosx>skip_turn_buttonR.x &&MousPosy<skip_turn_buttonR.y+skip_turn_buttonR.height&&MousPosy>skip_turn_buttonR.y){
+          players[current_player].canPlay =false;
+        }
+        if(MousPosx<flip_tile_buttonR.x + flip_tile_buttonR.width &&MousPosx>flip_tile_buttonR.x &&MousPosy<flip_tile_buttonR.y+flip_tile_buttonR.height&&MousPosy>flip_tile_buttonR.y){
+          players[current_player].Hand[idp[current_player]-1]= flip_Matrix(players[current_player].Hand[idp[current_player]-1]);
+          players[current_player].Hand[idp[current_player]-1]=to_Tile(players[current_player].Hand[idp[current_player]-1].matrix,players[current_player].Hand[idp[current_player]-1]);
+          flipsound.play();
+        }
+
+      }else if(!players[current_player].canPlay){
+        if(current_player+1<4){
+          current_player++;
+        }else{
+          current_player=0;
+        }
       }
-}
-if(players[player].Time.min>9){
-  players[player].canPlay=false;
-}
-}else{
-  chrono[player].reset();
-  players[player].Time.sec=0;
-  players[player].Time.min++;
-  chrono[player].resume();
-}
 
-//************************************************************************************************************************************************************************
+    }
+
+    //*************************************************************************************************************
+
+    //handling time in the game for each player
+    times[current_player] = chrono[current_player].getElapsedTime();
+
+    if(players[current_player].Time.sec<60){
+      players[current_player].Time.sec=times[current_player].asSeconds();
+      if(players[current_player].Time.sec<10){
+        if(players[current_player].Time.min<10){
+          player_clock_display[current_player].setString("time:0" + to_string(players[current_player].Time.min) + ":0" + to_string(players[current_player].Time.sec) );
+        }else{
+          player_clock_display[current_player].setString("time:" + to_string(players[current_player].Time.min) + ":0" + to_string(players[current_player].Time.sec) );
+        }
+      }else{
+
+        if(players[current_player].Time.min<10){
+          player_clock_display[current_player].setString("time:0" + to_string(players[current_player].Time.min) + ":" + to_string(players[current_player].Time.sec) );
+        }else{
+          player_clock_display[current_player].setString("time:" +to_string(players[current_player].Time.min) + ":" + to_string(players[current_player].Time.sec) );
+        }
+      }
+      if(players[current_player].Time.min>9){
+        players[current_player].canPlay=false;
+      }
+    }else{
+      chrono[current_player].reset();
+      players[current_player].Time.sec=0;
+      players[current_player].Time.min++;
+      chrono[current_player].resume();
+    }
+
+    //************************************************************************************************************************************************************************
     if (!map.load("src/tileset20m.png", sf::Vector2u( main_board_tile_width,  main_board_tile_height), GameBoard.table , main_board_size,  main_board_size, main_board_position_x ,main_board_position_y)){
       cout << "cant load the Texture file associated to main board load  : src/tileset20m.png";
 
-        return -1;
+      return -1;
     }
     for (int i=0;i<4;i++){
       if (!players[i].FullHand.load("src/ptiles36.png", sf::Vector2u( player_board_tile_width, player_board_tile_height), players[i].pboard.table,  player_board_matrix_height,  player_board_matrix_width, players[i].pos.x,players[i].pos.y)){
         cout << "cant load the Texture file associated to main board load  : src/tileset20m.png";
 
-         return -1;
-       }
+        return -1;
+      }
       if (!players[i].cTile.load("src/ptiles36.png", sf::Vector2u( player_board_tile_width, player_board_tile_height), players[i].Hand[idp[i]-1].table, tile_matrix_size, tile_matrix_size,playerTileDisplay[i].x ,playerTileDisplay[i].y)){
         cout << "cant load the Texture file associated to main board load  : src/tileset20m.png";
 
-         return -1;
-       }
-    }
-    if((players[0].canPlay||players[1].canPlay||players[2].canPlay||players[3].canPlay)&&continue_playing){
-
-    window.draw(map);
-    window.draw(HeaderS);
-    window.draw(FooterS);
-    window.draw(rotate_Clock_WiseRS);
-    window.draw(rotate_Counter_Clock_WiseRS);
-    window.draw(rotate_Counter_Clock_WiseRS);
-    window.draw(flip_tile_buttonRS);
-    window.draw(skip_turn_buttonRS);
-
-    for (int i=0 ; i<=3;i++){
-      window.draw(pAreasShape[i]);
-      window.draw(PlayerName[i]);
-      window.draw(players[i].FullHand);
-      window.draw(players[i].cTile);
-      player_score_display[i].setString("score: " + to_string(players[i].score));
-      window.draw(player_score_display[i]);
-      window.draw(player_clock_display[i]);
-
-    }
-      window.draw(title);
-      window.display();
-    }else{
-      int max=players[0].score;
-      for(int i=1;i<4;i++){
-        if(players[i].score>max){
-          max =players[i].id;
-        }
+        return -1;
       }
-          String rep=to_string(max);
-          GameOverText.setString("Game Over \nplayer " + rep + " wins");
 
-    window.draw(GameOverText);
+    }
 
-    window.display();
-}
+
+
+    if(start_game){
+      if((players[0].canPlay||players[1].canPlay||players[2].canPlay||players[3].canPlay)&&continue_playing){
+        window.clear(sf::Color BgColor);
+
+        window.draw(map);
+        window.draw(HeaderS);
+        window.draw(FooterS);
+        window.draw(rotate_Clock_WiseRS);
+        window.draw(rotate_Counter_Clock_WiseRS);
+        window.draw(rotate_Counter_Clock_WiseRS);
+        window.draw(flip_tile_buttonRS);
+        window.draw(skip_turn_buttonRS);
+
+        for (int i=0 ; i<=3;i++){
+          window.draw(pAreasShape[i]);
+          window.draw(PlayerName[i]);
+          window.draw(players[i].FullHand);
+          window.draw(players[i].cTile);
+          player_score_display[i].setString("score: " + to_string(players[i].score));
+          window.draw(player_score_display[i]);
+          window.draw(player_clock_display[i]);
+          window.draw(contain[i]);
+        }
+        window.draw(title);
+        window.display();
+      }else{
+        int max=players[0].score;
+        for(int i=1;i<4;i++){
+          if(players[i].score>max){
+            max =players[i].id;
+          }
+        }
+        window.clear(sf::Color::Transparent);
+
+        String rep=to_string(max);
+        GameOverText.setString("Game Over \nplayer " + rep + " wins");
+        while (playwinsound){
+        winsound.play();
+        playwinsound=false;
+      }
+        window.draw(GameOverText);
+
+        window.display();
+      }
+
+    }else{
+      window.draw(start_game_buttonRS);
+      window.display();
+
+    }
   }
-
   return 0;
 }
