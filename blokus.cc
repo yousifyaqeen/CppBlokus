@@ -4,7 +4,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <ctime>
-#include "Chronometer.hpp"
+#include "res/Chronometer.hpp"
 #include <SFML/Audio.hpp>
 
 
@@ -40,13 +40,13 @@ const float out_line_size              = 2.0 ;
 //improve the display of player board
 const int   overflowcorrect            = 10 ;
 //define a start time (representing minutes seconds are added later when defining the time for each player and is always equal to 00)
-const int   time_for_each_player       = 0 ;
+const int   time_for_each_player       = 10 ;
 //define the size of a single tile
 const int   tile_matrix_size           = 5 ;
 
 const int   total_number_of_tiles      = 21;
 
-const int   number_of_players          = 4;//between 1 and 4
+int         number_of_players          = 4;//between 1 and 4
 
 int tilesTableWithCenter[] =
 // an array defining the player board and each piece has 2 associated to its
@@ -120,7 +120,7 @@ int iniMap[] =
   2, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 4,
 
 };
-//definning the tile array see the full table in tile.map
+//definning the tile array see the full table in tiles.map
 int t1[]={0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,};
 
 int t2[]={0,0,0,0,0,0,0,0,0,0,0,0,2,1,0,0,0,0,0,0,0,0,0,0,0,};
@@ -290,36 +290,6 @@ struct player{
 //****************************************
 
 
-//for debugging purposes only ********{
-
-void print_matrix(int input[main_board_size][main_board_size]){
-  //a function to print the board not to be used in the game
-  //for debugging purposes only
-  //activated when called with a square matrix of size 24
-  for (int i = 0; i < main_board_size; i++) {
-    for (int j = 0; j < main_board_size; j++) {
-      std::cout << input[i][j] << " ";
-    }
-    std::cout << " " << std::endl;
-  }
-}
-//for debugging purposes only ********}
-
-
-//for debugging purposes only ********{
-void print_matrix(int input[tile_matrix_size][tile_matrix_size]){
-  //a function to print the tile not to be used in the game
-  //activated when called with a square matrix of size 5
-  for (int i = 0; i < tile_matrix_size; i++) {
-    for (int j = 0; j < tile_matrix_size; j++) {
-      std::cout << input[i][j] << " ";
-    }
-    std::cout << " " << std::endl;
-  }
-}
-//for debugging purposes only ******}
-
-//**************************************************************
 
 
 
@@ -346,27 +316,19 @@ tile rotate_Clock_Wise(tile input){
 //**************************************************************
 tile rotate_Counter_Clock_Wise(tile input)
 {
-  // Consider all squares one by one
   for (int x = 0; x < tile_matrix_size / 2; x++)
   {
 
-    // Consider elements in group of 4 in
-    // current square
     for (int y = x; y < tile_matrix_size-x-1; y++)
     {
-      // store current cell in temp variable
       int temp =  input.matrix[x][y];
 
-      // move values from right to top
       input.matrix[x][y] = input.matrix[y][tile_matrix_size-1-x];
 
-      // move values from bottom to right
       input.matrix[y][tile_matrix_size-1-x] =  input.matrix[tile_matrix_size-1-x][tile_matrix_size-1-y];
 
-      // move values from left to bottom
       input.matrix[tile_matrix_size-1-x][tile_matrix_size-1-y] =  input.matrix[tile_matrix_size-1-y][x];
 
-      // assign temp to left
       input.matrix[tile_matrix_size-1-y][x] = temp;
     }
   }
@@ -385,26 +347,17 @@ tile to_Tile(int input[]){
       n++;
     }
   }
-  return tmp;
-}
-
-tile to_Tile(tile input){
-  //a function to create a table from the tile matrix
-
-  tile tmp;
-  int n=0;
-  for(int i=0;i<tile_matrix_size;i++){
-    for(int j=0;j<tile_matrix_size;j++){
-      tmp.table[n]= input.matrix[i][j];
-      n++;
-    }
+  n=0;
+  for(int i=0;i<tile_matrix_size*tile_matrix_size;i++){
+    tmp.table[n]= input[i];
+    n++;
   }
   return tmp;
 }
 
-tile to_Tile(int input[tile_matrix_size][tile_matrix_size],tile tmp){
+tile to_Tile(int input[tile_matrix_size][tile_matrix_size]){
   //a function to create a table from the tile matrix
-
+  tile tmp;
   int n=0;
   for(int i=0;i<tile_matrix_size;i++){
     for(int j=0;j<tile_matrix_size;j++){
@@ -412,6 +365,14 @@ tile to_Tile(int input[tile_matrix_size][tile_matrix_size],tile tmp){
       n++;
     }
   }
+  n=0;
+  for(int i=0;i<tile_matrix_size;i++){
+    for(int j=0;j<tile_matrix_size;j++){
+      tmp.matrix[i][j]=tmp.table[n];
+      n++;
+    }
+  }
+
   return tmp;
 };
 //**************************************************************
@@ -427,23 +388,22 @@ Board to_Board(int input[]){
       n++;
     }
   }
+  n=0;
+  for(int i=0;i<main_board_size;i++){
+    for(int j=0;j<main_board_size;j++){
+      tmp.table[n]= tmp.matrix[i][j];
+      n++;
+
+    }
+  }
+
+
   return tmp;
 }
 
 
 
 //**************************************************************
-Board to_Board(int input[],Board tmp){
-  //a function to create a matrix from the map
-  int n=0;
-  for(int i=0;i<main_board_size;i++){
-    for(int j=0;j<main_board_size;j++){
-      tmp.matrix[i][j]=input[n];
-      n++;
-    }
-  }
-  return tmp;
-}
 
 
 Board to_Board(int input[main_board_size][main_board_size]){
@@ -457,26 +417,19 @@ Board to_Board(int input[main_board_size][main_board_size]){
 
     }
   }
-  return tmp;
-}
 
-//**************************************************************
-
-Board to_Board(int input[main_board_size][main_board_size],Board tmp){
-  //a function to create a table from the map matrix
-  int n=0;
+  n=0;
   for(int i=0;i<main_board_size;i++){
     for(int j=0;j<main_board_size;j++){
-      tmp.table[n]= input[i][j];
+      tmp.matrix[i][j]=tmp.table[n];
       n++;
-
     }
   }
   return tmp;
 }
 
+//**************************************************************
 
-//********************************
 
 playerHand set_Player_Hand(int input[12*23]){
   //a function to create a table from the map matrix
@@ -514,17 +467,11 @@ playerHand set_Player_Hand(int input[12][23]){
   return tmp;
 }
 
-Board set_Board(int input[]){
-  Board tmp ;
-  tmp =  to_Board(input);
-  tmp = to_Board(tmp.matrix,tmp);
-  return tmp;
-}
+
 
 tile set_Tile(int id,int input[],int size){
   tile tmp;
   tmp = to_Tile(input);
-  tmp = to_Tile(tmp.matrix,tmp);
   tmp.id=id;
   tmp.size=size;
   return tmp;
@@ -537,8 +484,10 @@ tile set_Tile(int id,int input[],int size){
 int is_Equal(int input[main_board_size][main_board_size],int x,int y,int color){
   return input[x][y]==color;
 }
-int is_Equal(int input[tile_matrix_size][tile_matrix_size],int x,int y,int to_check){
-  return input[x][y]==to_check;
+
+
+int is_Equal(int input[tile_matrix_size][tile_matrix_size],int x,int y,int color){
+  return input[x][y]==color;
 }
 
 //**************************************************************
@@ -564,7 +513,7 @@ int is_Valid(tile check,Board lvl,int x,int y,int color){
 
   }
   bool side=1;
-  bool corner[tile_matrix_size] ={0,0,0,0,0};
+  bool corner=0;
 
   for(int i=0;i<check.size;i++){
     for(int j=0;j<main_board_size;j++){
@@ -572,19 +521,12 @@ int is_Valid(tile check,Board lvl,int x,int y,int color){
         tmp[j][m]=lvl.matrix[j][m];
       }
     }
-    //for debugging purposes only ******{}
-    //    std::cout <<" this is the " << i <<"time  x = " << x+col[i]<<" y = " <<y+row[i]<<"\n";
-    //for debugging purposes only ******}
+
     if(is_Equal(tmp,x+col[i],y+row[i],7)){
-      //for debugging purposes only to be removed later
-      //    std::cout << "one or more boxes are depassing the borders \n";
-      //for debugging purposes only to be removed later
+
       return 0;
     }
     else if(!is_Equal(tmp,x+col[i],y+row[i],0 )){
-      //for debugging purposes only to be removed later
-      //    std::cout << "Case is not empty " << "x = " << x+col[i]<<" y = " <<y+row[i] <<" = "<< tmp[x+col[i]][y+row[i]]  <<"\n";
-      //for debugging purposes only to be removed later
 
       return 0;
     }else{
@@ -592,39 +534,32 @@ int is_Valid(tile check,Board lvl,int x,int y,int color){
 
     }
     bool s1 = is_Equal(tmp,1+x+col[i],y+row[i],color);
-    //tmp[1+x+col[i]][y+row[i]]=1;
+
     bool s2 = is_Equal(tmp,x+col[i],1+y+row[i],color);
-    //tmp[x+col[i]][y+row[i]+1]=2;
 
     bool s3 = is_Equal(tmp,x+col[i]-1,y+row[i],color);
-    //tmp[x+col[i]-1][y+row[i]]=3;
 
     bool s4 = is_Equal(tmp,x+col[i],y+row[i]-1,color);
-    // tmp[x+col[i]][y+row[i]-1]=4;
 
 
     if(s1){
-      //for debugging purposes only to be removed later
-      //  std::cout << "problem with the sides\n";
-      //for debugging purposes only to be removed later
+
+
       side=0;
     }
     if(s2){
-      //for debugging purposes only to be removed later
-      //    std::cout << "problem with the sides\n";
-      //for debugging purposes only to be removed later
+
+
       side=0;
     }
     if(s3){
-      //for debugging purposes only to be removed later
-      //    std::cout << "problem with the sides\n";
-      //for debugging purposes only to be removed later
+
+
       side=0;
     }
     if(s4){
-      //for debugging purposes only to be removed later
-      //    std::cout << "problem with the sides\n";
-      //for debugging purposes only to be removed later
+
+
       side=0;
     }
 
@@ -634,27 +569,25 @@ int is_Valid(tile check,Board lvl,int x,int y,int color){
     bool  c4 = is_Equal(tmp,x+col[i]-1,y+row[i]-1,color);
 
     if(c1||c2||c3||c4){
-      //  std::cout << "corners are ok \n";
-      corner[i] =1;
+
+      corner =1;
     }else{
 
-      //    std::cout << "corners are not ok \n";
     }
   }
   if(side==0){
 
     return 0;
-  }
-  for(int k=0;k<5;k++){
-    if(corner[k]==1){
-      return 1;
-    }
+
+  }if(corner==1){
+    return 1;
+
   }
 
   return 0;
 }
 
-playerHand is_Valid(playerHand input,playerHand pb,int x, int y,int size,int id){
+playerHand is_Valid(playerHand input,playerHand pboard,int x, int y,int size,int id){
 
   int col[size];
   int row[size];
@@ -670,20 +603,18 @@ playerHand is_Valid(playerHand input,playerHand pb,int x, int y,int size,int id)
   }
 
   for(int i=0;i<size;i++){
-    pb.matrix[col[i]][row[i]]=0;
+    pboard.matrix[col[i]][row[i]]=0;
   }
-  pb = set_Player_Hand(pb.matrix);
-  return pb;
+  pboard = set_Player_Hand(pboard.matrix);
+  return pboard;
 }
 
 
 //**************************************************************
 
-Board do_Move(tile check,Board lvl,int x,int y,int color){
+Board do_Move(tile check,Board board,int x,int y,int color){
   //check if a tile placement location is empty (0)
   //return true or false depending on the condition
-  Board tmp;
-
   int n = 0;
   int col[check.size];
   int row[check.size];
@@ -696,17 +627,12 @@ Board do_Move(tile check,Board lvl,int x,int y,int color){
       }
     }
   }
-  for(int j=0;j<24;j++){
-    for(int m=0;m<24;m++){
-      tmp.matrix[j][m]=lvl.matrix[j][m];
-    }
-  }
+
   for(int i=0;i<check.size;i++){
-    tmp.matrix[x+col[i]][y+row[i]]=color;
+    board.matrix[x+col[i]][y+row[i]]=color;
   }
-  tmp = to_Board(tmp.matrix);
-  lvl = set_Board(tmp.table);
-  return lvl;
+  board = to_Board(board.matrix);
+  return board;
 }
 
 
@@ -715,7 +641,7 @@ player set_Player(int id,sf::Color color,int time,tile tiles[]){
   tmp.id=id;
   tmp.color= color;
   tmp.score =0;
-  tmp.Time.min =time_for_each_player;
+  tmp.Time.min =0;
   tmp.Time.sec =0;
   for(int i=0;i<21;i++){
     tmp.Have[i]=1;
@@ -740,7 +666,7 @@ tile flip_Matrix(tile input){
     input.matrix[i][1]=input.matrix[i][3];
     input.matrix[i][3]=tmp;
   }
-  return input= to_Tile(input.matrix,input);
+  return input= to_Tile(input.matrix);
 }
 //**************************************************************
 
@@ -757,8 +683,9 @@ int main() {
 
   TileMap map;
 
+  bool playwinsound=true;
 
-  sf::View view;
+
   //putting the tiles into one array for easy access
   tile tiles[21];
   tiles[0]=set_Tile(1,t1,1);
@@ -783,8 +710,8 @@ int main() {
   tiles[19]=set_Tile(20,t20,5);
   tiles[20]=set_Tile(21,t21,5);
   sf::Font font;
-  if (!font.loadFromFile("src/RobotoMono-Regular.ttf")){
-    cout << "cant load the Texture file associated to rotate_Counter_Clock_Wise button : src/CCWrotate.png";
+  if (!font.loadFromFile("res/RobotoMono-Regular.ttf")){
+    cout << "cant load the font file  : res/RobotoMono-Regular.ttf";
     return EXIT_FAILURE;
 
   }
@@ -924,29 +851,29 @@ int main() {
   sf::Texture start_game_buttonRTexture;
 
 
-  if (!rotate_Clock_WiseRTexture.loadFromFile("src/CWrotate.png"))
+  if (!rotate_Clock_WiseRTexture.loadFromFile("res/CWrotate.png"))
   {
-    cout << "cant load the Texture file associated to rotate_Clock_Wise button : src/CWrotate.png";
+    cout << "cant load the Texture file associated to rotate_Clock_Wise button : res/CWrotate.png";
   }
 
-  if (!skip_turn_buttonRTexture.loadFromFile("src/skip.png"))
+  if (!skip_turn_buttonRTexture.loadFromFile("res/skip.png"))
   {
-    cout << "cant load the Texture file associated to rotate_Counter_Clock_Wise button : src/CCWrotate.png";
+    cout << "cant load the Texture file associated to skip button : res/skip.png";
   }
 
-  if (!flip_tile_buttonRTexture.loadFromFile("src/flip.png"))
+  if (!flip_tile_buttonRTexture.loadFromFile("res/flip.png"))
   {
-    cout << "cant load the Texture file associated to rotate_Counter_Clock_Wise button : src/CCWrotate.png";
+    cout << "cant load the Texture file associated to flip button : res/flip.png";
   }
 
-  if (!rotate_Counter_Clock_WiseRTexture.loadFromFile("src/CCWrotate.png"))
+  if (!rotate_Counter_Clock_WiseRTexture.loadFromFile("res/CCWrotate.png"))
   {
-    cout << "cant load the Texture file associated to rotate_Counter_Clock_Wise button : src/CCWrotate.png";
+    cout << "cant load the Texture file associated to rotate_Counter_Clock_Wise button : res/CCWrotate.png";
   }
 
-  if (!start_game_buttonRTexture.loadFromFile("src/startgame.png"))
+  if (!start_game_buttonRTexture.loadFromFile("res/startgame.png"))
   {
-    cout << "cant load the Texture file associated to rotate_Clock_Wise button : src/CWrotate.png";
+    cout << "cant load the Texture file associated to startgame button : res/startgame.png";
   }
 
 
@@ -1019,12 +946,34 @@ int main() {
   }
 
   sf::Text GameOverText;
-  GameOverText.setPosition(Vector2f(window_width/2-GameOverText.getLocalBounds().width/2,window_height/2));
   GameOverText.setFont(font);
   GameOverText.setCharacterSize (50);
   GameOverText.setStyle(sf::Text::Bold);
   GameOverText.setColor(sf::Color::Red);
+  GameOverText.setString("Game Over");
+  GameOverText.setPosition(Vector2f(window_width/2 - GameOverText.getLocalBounds().width/2,window_height/4));
 
+  sf::Text DisplayWinner;
+  DisplayWinner.setFont(font);
+  DisplayWinner.setCharacterSize (50);
+  DisplayWinner.setStyle(sf::Text::Bold);
+  DisplayWinner.setColor(sf::Color::Red);
+  DisplayWinner.setString("player   wins");
+  DisplayWinner.setPosition(Vector2f(window_width/2 - DisplayWinner.getLocalBounds().width/2,GameOverText.getPosition().y+GameOverText.getGlobalBounds().height));
+
+
+
+  sf::Text GameOverScoreDisplay[4];
+  int addtopos=0;
+  for(int i=0;i<4;i++){
+    GameOverScoreDisplay[i].setFont(font);
+    GameOverScoreDisplay[i].setCharacterSize (40);
+    GameOverScoreDisplay[i].setStyle(sf::Text::Bold);
+    GameOverScoreDisplay[i].setColor(players[i].color);
+    GameOverScoreDisplay[i].setString("Player " + to_string(players[i].id) + " Score :");
+    GameOverScoreDisplay[i].setPosition(Vector2f(window_width/2 - GameOverScoreDisplay[i].getLocalBounds().width,window_height/2+addtopos*GameOverScoreDisplay[i].getLocalBounds().height));
+    addtopos++;
+  }
 
   RectangleShape pAreasShape[4];
 
@@ -1045,45 +994,44 @@ int main() {
   FooterS.setPosition(Footer.x,Footer.y);
   FooterS.setFillColor(Footer.color);
   RectangleShape contain[4];
-//for debug purposes only to be removed after
-for(int i=0 ; i<4;i++){
-  contain[i].setSize(Vector2f(tile_matrix_size* player_board_tile_width,tile_matrix_size* player_board_tile_width));
-  contain[i].setPosition(playerTileDisplay[i].x ,playerTileDisplay[i].y);
-  contain[i].setOutlineThickness(out_line_size);
-  contain[i].setFillColor(sf::Color::Transparent);
-}
-
-SoundBuffer placebuffer;
-placebuffer.loadFromFile("place.wav");
-sf::Sound placesound;
-placesound.setBuffer(placebuffer);
-
-SoundBuffer pickbuffer;
-pickbuffer.loadFromFile("pick.wav");
-sf::Sound picksound;
-picksound.setBuffer(pickbuffer);
-
-SoundBuffer flipbuffer;
-flipbuffer.loadFromFile("flip.wav");
-sf::Sound flipsound;
-flipsound.setBuffer(flipbuffer);
-
-SoundBuffer rotatebuffer;
-rotatebuffer.loadFromFile("rotate.wav");
-sf::Sound rotatesound;
-rotatesound.setBuffer(rotatebuffer);
-
-SoundBuffer winbuffer;
-winbuffer.loadFromFile("win.wav");
-sf::Sound winsound;
-winsound.setBuffer(winbuffer);
 
 
-bool playwinsound=true;
+  for(int i=0 ; i<4;i++){
+    contain[i].setSize(Vector2f(tile_matrix_size* player_board_tile_width,tile_matrix_size* player_board_tile_width));
+    contain[i].setPosition(playerTileDisplay[i].x ,playerTileDisplay[i].y);
+    contain[i].setOutlineThickness(out_line_size);
+    contain[i].setFillColor(sf::Color::Transparent);
+  }
+
+  SoundBuffer placebuffer;
+  placebuffer.loadFromFile("res/place.wav");
+  sf::Sound placesound;
+  placesound.setBuffer(placebuffer);
+
+  SoundBuffer pickbuffer;
+  pickbuffer.loadFromFile("res/pick.wav");
+  sf::Sound picksound;
+  picksound.setBuffer(pickbuffer);
+
+  SoundBuffer flipbuffer;
+  flipbuffer.loadFromFile("res/flip.wav");
+  sf::Sound flipsound;
+  flipsound.setBuffer(flipbuffer);
+
+  SoundBuffer rotatebuffer;
+  rotatebuffer.loadFromFile("res/rotate.wav");
+  sf::Sound rotatesound;
+  rotatesound.setBuffer(rotatebuffer);
+
+  SoundBuffer winbuffer;
+  winbuffer.loadFromFile("res/win.wav");
+  sf::Sound winsound;
+  winsound.setBuffer(winbuffer);
 
 
-//for debug purposes only
-  Board GameBoard = set_Board(iniMap);
+
+
+  Board GameBoard = to_Board(iniMap);
   playerHand testFull=set_Player_Hand(tilesTableWithEachPiece);
 
   while (window.isOpen()) {
@@ -1105,15 +1053,6 @@ bool playwinsound=true;
       if (event.type == Event::Closed) {
         window.close();
 
-      }
-
-      if (event.type == Event::KeyPressed) {
-
-        if(event.key.code==Keyboard::Up) {
-
-
-
-        }
       }
       //*********************************************************************************************************************************************************
 
@@ -1141,8 +1080,7 @@ bool playwinsound=true;
 
             if(players[current_player].score==21){
 
-              String rep=to_string(current_player+1);
-              GameOverText.setString("Game Over \nplayer " + rep + " wins");
+
               continue_playing = false;
 
             }else{
@@ -1162,7 +1100,7 @@ bool playwinsound=true;
               }
 
             }
-            if(current_player+1<4){
+            if(current_player+1<number_of_players){
               current_player++;
             }else{
               current_player=0;
@@ -1183,28 +1121,28 @@ bool playwinsound=true;
         if(MousPosx<rotate_Clock_WiseR.x + rotate_Clock_WiseR.width &&MousPosx>rotate_Clock_WiseR.x &&MousPosy<rotate_Clock_WiseR.y+rotate_Clock_WiseR.height&&MousPosy>rotate_Clock_WiseR.y){
 
           players[current_player].Hand[idp[current_player]-1]= rotate_Clock_Wise(players[current_player].Hand[idp[current_player]-1]);
-          players[current_player].Hand[idp[current_player]-1]=to_Tile(players[current_player].Hand[idp[current_player]-1].matrix,players[current_player].Hand[idp[current_player]-1]);
+          players[current_player].Hand[idp[current_player]-1]=to_Tile(players[current_player].Hand[idp[current_player]-1].matrix);
           rotatesound.play();
 
         }
 
         if(MousPosx<rotate_Counter_Clock_WiseR.x + rotate_Counter_Clock_WiseR.width &&MousPosx>rotate_Counter_Clock_WiseR.x &&MousPosy<rotate_Counter_Clock_WiseR.y+rotate_Counter_Clock_WiseR.height&&MousPosy>rotate_Counter_Clock_WiseR.y){
           players[current_player].Hand[idp[current_player]-1]= rotate_Counter_Clock_Wise(players[current_player].Hand[idp[current_player]-1]);
-          players[current_player].Hand[idp[current_player]-1]=to_Tile(players[current_player].Hand[idp[current_player]-1].matrix,players[current_player].Hand[idp[current_player]-1]);
+          players[current_player].Hand[idp[current_player]-1]=to_Tile(players[current_player].Hand[idp[current_player]-1].matrix);
           rotatesound.play();
-                }
+        }
 
         if(MousPosx<skip_turn_buttonR.x + skip_turn_buttonR.width &&MousPosx>skip_turn_buttonR.x &&MousPosy<skip_turn_buttonR.y+skip_turn_buttonR.height&&MousPosy>skip_turn_buttonR.y){
           players[current_player].canPlay =false;
         }
         if(MousPosx<flip_tile_buttonR.x + flip_tile_buttonR.width &&MousPosx>flip_tile_buttonR.x &&MousPosy<flip_tile_buttonR.y+flip_tile_buttonR.height&&MousPosy>flip_tile_buttonR.y){
           players[current_player].Hand[idp[current_player]-1]= flip_Matrix(players[current_player].Hand[idp[current_player]-1]);
-          players[current_player].Hand[idp[current_player]-1]=to_Tile(players[current_player].Hand[idp[current_player]-1].matrix,players[current_player].Hand[idp[current_player]-1]);
+          players[current_player].Hand[idp[current_player]-1]=to_Tile(players[current_player].Hand[idp[current_player]-1].matrix);
           flipsound.play();
         }
 
       }else if(!players[current_player].canPlay){
-        if(current_player+1<4){
+        if(current_player+1<number_of_players){
           current_player++;
         }else{
           current_player=0;
@@ -1225,6 +1163,7 @@ bool playwinsound=true;
           player_clock_display[current_player].setString("time:0" + to_string(players[current_player].Time.min) + ":0" + to_string(players[current_player].Time.sec) );
         }else{
           player_clock_display[current_player].setString("time:" + to_string(players[current_player].Time.min) + ":0" + to_string(players[current_player].Time.sec) );
+
         }
       }else{
 
@@ -1243,28 +1182,30 @@ bool playwinsound=true;
       players[current_player].Time.min++;
       chrono[current_player].resume();
     }
-
+    if(players[current_player].Time.min>=time_for_each_player)
+    {
+      players[current_player].canPlay=false;
+    }
     //************************************************************************************************************************************************************************
-    if (!map.load("src/tileset20m.png", sf::Vector2u( main_board_tile_width,  main_board_tile_height), GameBoard.table , main_board_size,  main_board_size, main_board_position_x ,main_board_position_y)){
-      cout << "cant load the Texture file associated to main board load  : src/tileset20m.png";
+
+    if (!map.load("res/tileset20m.png", sf::Vector2u( main_board_tile_width,  main_board_tile_height), GameBoard.table , main_board_size,  main_board_size, main_board_position_x ,main_board_position_y)){
+      cout << "cant load the Texture file associated to main board load  : res/tileset20m.png";
 
       return -1;
     }
     for (int i=0;i<4;i++){
-      if (!players[i].FullHand.load("src/ptiles36.png", sf::Vector2u( player_board_tile_width, player_board_tile_height), players[i].pboard.table,  player_board_matrix_height,  player_board_matrix_width, players[i].pos.x,players[i].pos.y)){
-        cout << "cant load the Texture file associated to main board load  : src/tileset20m.png";
+      if (!players[i].FullHand.load("res/ptiles36.png", sf::Vector2u( player_board_tile_width, player_board_tile_height), players[i].pboard.table,  player_board_matrix_height,  player_board_matrix_width, players[i].pos.x,players[i].pos.y)){
+        cout << "cant load the Texture file associated to player tiles   : res/ptiles36.png";
 
         return -1;
       }
-      if (!players[i].cTile.load("src/ptiles36.png", sf::Vector2u( player_board_tile_width, player_board_tile_height), players[i].Hand[idp[i]-1].table, tile_matrix_size, tile_matrix_size,playerTileDisplay[i].x ,playerTileDisplay[i].y)){
-        cout << "cant load the Texture file associated to main board load  : src/tileset20m.png";
+      if (!players[i].cTile.load("res/ptiles36.png", sf::Vector2u( player_board_tile_width, player_board_tile_height), players[i].Hand[idp[i]-1].table, tile_matrix_size, tile_matrix_size,playerTileDisplay[i].x ,playerTileDisplay[i].y)){
+        cout << "cant load the Texture file associated to player tiles   : res/ptiles36.png";
 
         return -1;
       }
 
     }
-
-
 
     if(start_game){
       if((players[0].canPlay||players[1].canPlay||players[2].canPlay||players[3].canPlay)&&continue_playing){
@@ -1293,19 +1234,26 @@ bool playwinsound=true;
         window.display();
       }else{
         int max=players[0].score;
+        int winner_id=players[0].id;
         for(int i=1;i<4;i++){
           if(players[i].score>max){
-            max =players[i].id;
+            max =players[i].score;
+            winner_id=players[i].id;
           }
         }
-        window.clear(sf::Color::Transparent);
-
-        String rep=to_string(max);
-        GameOverText.setString("Game Over \nplayer " + rep + " wins");
         while (playwinsound){
-        winsound.play();
-        playwinsound=false;
-      }
+          winsound.play();
+          playwinsound=false;
+        }
+        window.clear(sf::Color BgColor);
+        for(int i=0;i<4;i++){
+          GameOverScoreDisplay[i].setString("Player " + to_string(players[i].id) + " Score : " + to_string(players[i].score));
+          window.draw(GameOverScoreDisplay[i]);
+        }
+        DisplayWinner.setString("player " +to_string(winner_id)+" wins");
+        DisplayWinner.setColor(players[winner_id-1].color);
+        window.draw(DisplayWinner);
+
         window.draw(GameOverText);
 
         window.display();
