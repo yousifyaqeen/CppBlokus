@@ -6,7 +6,8 @@
 #include <ctime>
 #include "res/Chronometer.hpp"
 #include <SFML/Audio.hpp>
-
+#include <chrono>
+#include <thread>
 
 using namespace std;
 using namespace sf;
@@ -16,7 +17,7 @@ int window_height                = 700 ;
 //width of the window
 int window_width                 = 1080 ;
 //the window's background color
-#define BgColor (89,88,86,255)
+const sf::Color BgColor(89,88,86,255);
 //the width of the main board tiles(same as the size in the texture file)
 const int   main_board_tile_width      = 20 ;
 //the width of the tiles in the player board area
@@ -671,12 +672,12 @@ tile flip_Matrix(tile input){
 //**************************************************************
 
 int main() {
-  bool start_game =true;
-
+  bool start_game =false;
+  bool stop_itiration=false;
   bool  continue_playing = true ;
 
   Time times[4];
-
+  int counter=0;
   sftools::Chronometer chrono[4];
 
   int current_player=0;
@@ -684,7 +685,6 @@ int main() {
   TileMap map;
 
   bool playwinsound=true;
-
 
   //putting the tiles into one array for easy access
   tile tiles[21];
@@ -720,6 +720,7 @@ int main() {
   for(int i=0;i<4;i++){
     idp[i]=1;
   }
+
 
   sf::Text title("Blokus", font, 50);
   title.setPosition(Vector2f(((window_width/2 - title.getLocalBounds().width/2)),0.0));
@@ -762,7 +763,7 @@ int main() {
   Header.y      =out_line_size;
   Header.width= main_board_size* main_board_tile_width-out_line_size;
   Header.height=main_board_position_y-out_line_size;
-  Header.color= Color(sf::Color BgColor);
+  Header.color= Color(BgColor);
 
 
 
@@ -771,7 +772,7 @@ int main() {
   Footer.y      = main_board_position_y + main_board_size * main_board_tile_height;
   Footer.width  = main_board_size * main_board_tile_height;
   Footer.height = Header.height;
-  Footer.color  = Color(sf::Color BgColor);
+  Footer.color  = Color(BgColor);
 
 
 
@@ -812,11 +813,30 @@ int main() {
 
 
   Rectangle start_game_buttonR;
-  start_game_buttonR.width=window_width*0.15;
-  start_game_buttonR.height=window_height*0.15;
+  start_game_buttonR.width=window_width*0.12;
+  start_game_buttonR.height=window_height*0.1;
   start_game_buttonR.x =window_width/2-start_game_buttonR.width/2;
-  start_game_buttonR.y =window_height/3;
+  start_game_buttonR.y =window_height/6;
 
+
+
+  Rectangle two_players_buttonR;
+  two_players_buttonR.width=window_width*0.12;
+  two_players_buttonR.height=window_height*0.1;
+  two_players_buttonR.x =window_width/2-two_players_buttonR.width/2;
+  two_players_buttonR.y =window_height/3;
+
+  Rectangle three_players_buttonR;
+  three_players_buttonR.width=window_width*0.12;
+  three_players_buttonR.height=window_height*0.1;
+  three_players_buttonR.x =window_width/2-three_players_buttonR.width/2;
+  three_players_buttonR.y =window_height/2;
+
+  Rectangle four_players_buttonR;
+  four_players_buttonR.width=window_width*0.12;
+  four_players_buttonR.height=window_height*0.1;
+  four_players_buttonR.x =window_width/2-four_players_buttonR.width/2;
+  four_players_buttonR.y =window_height/2+three_players_buttonR.y-two_players_buttonR.y;
 
   player players[4];
   players[0]=set_Player(1,sf::Color::Red,time_for_each_player,tiles);
@@ -900,15 +920,49 @@ int main() {
   skip_turn_buttonRS.setTexture(&skip_turn_buttonRTexture);
 
 
+  sf::Texture T_background_texture;
+      if (!T_background_texture.loadFromFile("src/BlokusTiles.png"))
+          return EXIT_FAILURE;
+
+
   RectangleShape start_game_buttonRS;
   start_game_buttonRS.setSize(Vector2f(start_game_buttonR.width,start_game_buttonR.height));
   start_game_buttonRS.setPosition(start_game_buttonR.x,start_game_buttonR.y);
   start_game_buttonRS.setTexture(&start_game_buttonRTexture);
 
+  sf::Texture t_two_player;
+      if (!t_two_player.loadFromFile("res/2player.png"))
+          return EXIT_FAILURE;
+
+    RectangleShape two_players_buttonRS;
+    two_players_buttonRS.setSize(Vector2f(two_players_buttonR.width,two_players_buttonR.height));
+    two_players_buttonRS.setPosition(two_players_buttonR.x,two_players_buttonR.y);
+    two_players_buttonRS.setTexture(&t_two_player);
+
+    sf::Texture t_three_player;
+        if (!t_three_player.loadFromFile("res/3player.png"))
+            return EXIT_FAILURE;
+
+
+  RectangleShape three_players_buttonRS;
+  three_players_buttonRS.setSize(Vector2f(three_players_buttonR.width,three_players_buttonR.height));
+  three_players_buttonRS.setPosition(three_players_buttonR.x,three_players_buttonR.y);
+  three_players_buttonRS.setTexture(&t_three_player);
+
+  sf::Texture t_four_player;
+      if (!t_four_player.loadFromFile("res/4player.png"))
+          return EXIT_FAILURE;
+
+
+  RectangleShape four_players_buttonRS;
+  four_players_buttonRS.setSize(Vector2f(four_players_buttonR.width,four_players_buttonR.height));
+  four_players_buttonRS.setPosition(four_players_buttonR.x,four_players_buttonR.y);
+  four_players_buttonRS.setTexture(&t_four_player);
+
 
   sf::Text PlayerName[4];
 
-  for(int i=0 ; i<=3;i++){
+  for(int i=0 ; i<4;i++){
     String tmp = std::to_string(i+1);
     PlayerName[i].setString("player" + tmp);
     PlayerName[i].setFont(font);
@@ -977,7 +1031,7 @@ int main() {
 
   RectangleShape pAreasShape[4];
 
-  for(int i=0 ; i <=3;i++){
+  for(int i=0 ; i <4;i++){
     pAreasShape[i].setSize(Vector2f(pAreas[i].width,pAreas[i].height));
     pAreasShape[i].setPosition(pAreas[i].x,pAreas[i].y);
     pAreasShape[i].setFillColor(pAreas[i].color);
@@ -995,7 +1049,13 @@ int main() {
   FooterS.setFillColor(Footer.color);
   RectangleShape contain[4];
 
+sf::Color background_texture_color(50, 255, 126,50);
+  RectangleShape background_texture;
 
+  background_texture.setSize(Vector2f(window_width,window_height));
+  background_texture.setPosition(0.0,0.0);
+  background_texture.setFillColor(background_texture_color);
+  background_texture.setTexture(&T_background_texture);
   for(int i=0 ; i<4;i++){
     contain[i].setSize(Vector2f(tile_matrix_size* player_board_tile_width,tile_matrix_size* player_board_tile_width));
     contain[i].setPosition(playerTileDisplay[i].x ,playerTileDisplay[i].y);
@@ -1029,12 +1089,17 @@ int main() {
   winsound.setBuffer(winbuffer);
 
 
+  int count_rotation=0;
+int                     flip_counter=0;
 
-
+  int change_piece =0;
   Board GameBoard = to_Board(iniMap);
   playerHand testFull=set_Player_Hand(tilesTableWithEachPiece);
-
+int tmpx=500;
+int tmpy=500;
   while (window.isOpen()) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
     window.setSize(Vector2u(window_width,window_height));
 
     for(int i=0 ; i <4;i++){
@@ -1046,22 +1111,271 @@ int main() {
         contain[i].setOutlineColor(sf::Color::White);
       }
     }
+
+
+    if(number_of_players!=4){
+        for(int i=4;i>number_of_players-1;i--){
+          players[i].canPlay=false;
+          cout<<"imhere";
+        }
+      }
+      if(players[current_player].canPlay&&start_game){
+        stop_itiration=false;
+                for(int i=0;i<23;i++){
+                  for(int j=0;j<23;j++){
+                        if(is_Valid(players[current_player].Hand[idp[current_player]-1],GameBoard,i+1,j+1,players[current_player].id)){
+                                        GameBoard= do_Move(players[current_player].Hand[idp[current_player]-1],GameBoard,i+1,j+1,players[current_player].id);
+                                        players[current_player].pboard=is_Valid(testFull, players[current_player].pboard,i+1,j+1,players[current_player].Hand[idp[current_player]-1].size,idp[current_player]);
+                                        players[current_player].score=  players[current_player].score+tiles[idp[current_player]-1].size;
+                                        players[current_player].Have[idp[current_player]]=0;
+                                        chrono[current_player].pause();
+                                        placesound.play();
+
+                                        if(players[current_player].score==89){
+                                          players[current_player].canPlay=false;
+
+                                        }else{
+                                          if(idp[current_player]<21&&players[current_player].Have[idp[current_player]+1]!=0){
+
+                                            idp[current_player]++;
+
+                                          }else{
+
+                                            for(int i=0;i<21;i++){
+
+                                              if(players[current_player].Have[i]!=0){
+
+                                                idp[current_player]=i;
+                                                i=21;
+
+
+                                            }
+                                          }
+                                        }
+
+                                        }
+                                        count_rotation=0;
+                                        flip_counter=0;
+
+                                        if(current_player+1<4){
+                                          current_player++;
+                                        }else{
+                                          current_player=0;
+                                        }
+                                                                                stop_itiration=true;
+                          i=24;
+                          j=24;
+                        }else
+                        if(is_Valid(players[current_player].Hand[idp[current_player]-1],GameBoard,i-1,j+1,players[current_player].id)){
+
+                                        GameBoard= do_Move(players[current_player].Hand[idp[current_player]-1],GameBoard,i-1,j+1,players[current_player].id);
+                                        players[current_player].pboard=is_Valid(testFull, players[current_player].pboard,i-1,j+1,players[current_player].Hand[idp[current_player]-1].size,idp[current_player]);
+                                        players[current_player].score=  players[current_player].score+tiles[idp[current_player]-1].size;
+                                        players[current_player].Have[idp[current_player]]=0;
+                                        chrono[current_player].pause();
+                                        placesound.play();
+
+                                        if(players[current_player].score==89){
+                                          players[current_player].canPlay=false;
+                                          players[current_player].score=+50;
+                                        }else{
+                                          if(idp[current_player]<21&&players[current_player].Have[idp[current_player]+1]!=0){
+
+                                            idp[current_player]++;
+
+                                          }else{
+
+
+                                            for(int i=0;i<21;i++){
+
+                                              if(players[current_player].Have[i]!=0){
+
+                                                idp[current_player]=i;
+                                                i=21;
+
+                                              }
+                                            }
+                                          }
+
+                                        }
+                                        count_rotation=0;
+                                        flip_counter=0;
+
+                                        if(current_player+1<4){
+                                          current_player++;
+                                        }else{
+                                          current_player=0;
+                                        }
+                                                                                  stop_itiration=true;
+
+                          i=24;
+                          j=24;
+                        }else
+
+                        if(is_Valid(players[current_player].Hand[idp[current_player]-1],GameBoard,i+1,j-1,players[current_player].id)){
+                          tmpx=i;
+                          tmpy=j;
+
+                                        GameBoard= do_Move(players[current_player].Hand[idp[current_player]-1],GameBoard,i+1,j-1,players[current_player].id);
+                                        players[current_player].pboard=is_Valid(testFull, players[current_player].pboard,i+1,j-1,players[current_player].Hand[idp[current_player]-1].size,idp[current_player]);
+                                        players[current_player].score=  players[current_player].score+tiles[idp[current_player]-1].size;
+                                        players[current_player].Have[idp[current_player]]=0;
+                                        chrono[current_player].pause();
+                                        placesound.play();
+
+                                        if(players[current_player].score==89){
+                                          players[current_player].canPlay=false;
+
+                                        }else{
+                                          if(idp[current_player]<21&&players[current_player].Have[idp[current_player]+1]!=0){
+
+                                            idp[current_player]++;
+
+                                          }else{
+
+                                            for(int i=0;i<21;i++){
+                                              if(players[current_player].Have[i]!=0){
+
+                                                idp[current_player]=i;
+                                                i=21;
+
+                                              }
+                                            }
+
+                                          }
+                                        }
+                                        count_rotation=0;
+                                        flip_counter=0;
+
+                                        if(current_player+1<4){
+                                          current_player++;
+                                        }else{
+                                          current_player=0;
+                                        }
+                                                                                  stop_itiration=true;
+
+                          i=24;
+                          j=24;
+                        }else
+
+                        if(is_Valid(players[current_player].Hand[idp[current_player]-1],GameBoard,i-1,j-1,players[current_player].id)){
+                          tmpx=i;
+                          tmpy=j;
+
+                                        GameBoard= do_Move(players[current_player].Hand[idp[current_player]-1],GameBoard,i-1,j-1,players[current_player].id);
+                                        players[current_player].pboard=is_Valid(testFull, players[current_player].pboard,i-1,j-1,players[current_player].Hand[idp[current_player]-1].size,idp[current_player]);
+                                        players[current_player].score=  players[current_player].score+tiles[idp[current_player]-1].size;
+                                        players[current_player].Have[idp[current_player]]=0;
+                                        chrono[current_player].pause();
+                                        placesound.play();
+
+                                        if(players[current_player].score==89){
+                                          players[current_player].canPlay=false;
+
+                                        }else{
+                                          if(idp[current_player]<21&&players[current_player].Have[idp[current_player]+1]!=0){
+
+                                            idp[current_player]++;
+
+                                          }else{
+
+                                            for(int i=0;i<21;i++){
+
+                                              if(players[current_player].Have[i]!=0){
+                                                idp[current_player]=i;
+                                                i=21;
+                                              }
+    }
+                                          }
+
+                                        }
+                                        stop_itiration=true;
+                                          count_rotation=0;
+                                          flip_counter=0;
+
+                                          if(current_player+1<4){
+                                            current_player++;
+                                          }else{
+                                            current_player=0;
+                                          }
+                                          i=24;
+                                          j=24;
+
+                        }
+                      }
+                  }
+                  if(!stop_itiration){
+                    count_rotation++;
+                    players[current_player].Hand[idp[current_player]-1]= rotate_Clock_Wise(players[current_player].Hand[idp[current_player]-1]);
+                    players[current_player].Hand[idp[current_player]-1]=to_Tile(players[current_player].Hand[idp[current_player]-1].matrix);
+
+                  }if(count_rotation>4){
+                    count_rotation=0;
+                    flip_counter++;
+                    players[current_player].Hand[idp[current_player]-1]= flip_Matrix(players[current_player].Hand[idp[current_player]-1]);
+                    players[current_player].Hand[idp[current_player]-1]=to_Tile(players[current_player].Hand[idp[current_player]-1].matrix);
+                  }
+                  if(flip_counter!=0){
+                    flip_counter=0;
+                    change_piece++;
+                    count_rotation=0;
+
+                    if(idp[current_player]<22&&players[current_player].Have[idp[current_player]+1]!=0){
+                      idp[current_player]++;
+                    }else{
+
+                        for(int i=0;i<21;i++){
+                          if(players[current_player].Have[i]!=0){
+
+                            idp[current_player]=i;
+                            i=22;
+                          }
+                        }
+    }
+
+
+                  }
+                  if(change_piece>21&&!stop_itiration){
+                    change_piece=0;
+                    players[current_player].canPlay=false;
+                    if(current_player+1<4){
+                      current_player++;
+                    }else{
+                      current_player=0;
+                    }
+                  }
+
+
+
+      }else if(!players[current_player].canPlay){
+
+        if(current_player+1<4){
+          current_player++;
+        }else{
+          current_player=0;
+        }
+      }
+
+
+
     Event event;
     while (window.pollEvent(event)) {
-
 
       if (event.type == Event::Closed) {
         window.close();
 
       }
-      //*********************************************************************************************************************************************************
 
+
+
+      //*********************************************************************************************************************************************************
+/*
       //game play algorthme for each player
       int MousPosx = (int) event.mouseButton.x;
       int MousPosy = (int)event.mouseButton.y;
       chrono[current_player].resume();
 
-      if (event.type == sf::Event::MouseButtonPressed&&players[current_player].canPlay) {
+      if (event.type == sf::Event::MouseButtonPressed&&players[current_player].canPlay&&start_game) {
 
 
         if(MousPosx>main_board_position_x&&MousPosy>main_board_position_y&&MousPosx<main_board_position_x+ main_board_size* main_board_tile_width&&MousPosy<main_board_position_y+ main_board_size* main_board_tile_height){
@@ -1071,18 +1385,16 @@ int main() {
 
           if(is_Valid(players[current_player].Hand[idp[current_player]-1],GameBoard,transy,transx,players[current_player].id)){
 
-            players[current_player].score++;
             GameBoard= do_Move(players[current_player].Hand[idp[current_player]-1],GameBoard,transy,transx,players[current_player].id);
             players[current_player].pboard=is_Valid(testFull, players[current_player].pboard,transy,transx,players[current_player].Hand[idp[current_player]-1].size,idp[current_player]);
+            players[current_player].score=  players[current_player].score+tiles[idp[current_player]-1].size;
             players[current_player].Have[idp[current_player]]=0;
             chrono[current_player].pause();
             placesound.play();
 
-            if(players[current_player].score==21){
+            if(players[current_player].score==89){
 
-
-              continue_playing = false;
-
+              players[current_player].canPlay=false;
             }else{
               if(idp[current_player]<21&&players[current_player].Have[idp[current_player]+1]!=0){
 
@@ -1147,7 +1459,39 @@ int main() {
         }else{
           current_player=0;
         }
-      }
+
+
+}*/
+
+
+
+          if(!start_game){
+
+            int MousPosx = (int) event.mouseButton.x;
+            int MousPosy = (int)event.mouseButton.y;
+            chrono[current_player].resume();
+
+            if (event.type == sf::Event::MouseButtonPressed) {
+
+              if(MousPosx<start_game_buttonR.x + start_game_buttonR.width &&MousPosx>start_game_buttonR.x &&MousPosy<start_game_buttonR.y+start_game_buttonR.height&&MousPosy>start_game_buttonR.y){
+                number_of_players=4;
+                start_game =true;
+              }
+              if(MousPosx<two_players_buttonR.x + two_players_buttonR.width &&MousPosx>two_players_buttonR.x &&MousPosy<two_players_buttonR.y+two_players_buttonR.height&&MousPosy>two_players_buttonR.y){
+                number_of_players=2;
+                start_game =true;
+              }
+              if(MousPosx<three_players_buttonR.x + three_players_buttonR.width &&MousPosx>three_players_buttonR.x &&MousPosy<three_players_buttonR.y+three_players_buttonR.height&&MousPosy>three_players_buttonR.y){
+                number_of_players=3;
+                start_game =true;
+              }
+              if(MousPosx<four_players_buttonR.x + four_players_buttonR.width &&MousPosx>four_players_buttonR.x &&MousPosy<four_players_buttonR.y+four_players_buttonR.height&&MousPosy>four_players_buttonR.y){
+                start_game =true;
+              }
+
+          }
+        }
+
 
     }
 
@@ -1206,11 +1550,11 @@ int main() {
       }
 
     }
-
+cout<<count_rotation<< " change piece : " << change_piece << "\n";
     if(start_game){
-      if((players[0].canPlay||players[1].canPlay||players[2].canPlay||players[3].canPlay)&&continue_playing){
-        window.clear(sf::Color BgColor);
-
+      if((players[0].canPlay||players[1].canPlay||players[2].canPlay||players[3].canPlay)||continue_playing){
+        window.clear(BgColor);
+        window.draw(background_texture);
         window.draw(map);
         window.draw(HeaderS);
         window.draw(FooterS);
@@ -1233,6 +1577,12 @@ int main() {
         window.draw(title);
         window.display();
       }else{
+
+
+        window.clear(BgColor);
+        window.draw(background_texture);
+
+
         int max=players[0].score;
         int winner_id=players[0].id;
         for(int i=1;i<4;i++){
@@ -1245,7 +1595,6 @@ int main() {
           winsound.play();
           playwinsound=false;
         }
-        window.clear(sf::Color BgColor);
         for(int i=0;i<4;i++){
           GameOverScoreDisplay[i].setString("Player " + to_string(players[i].id) + " Score : " + to_string(players[i].score));
           window.draw(GameOverScoreDisplay[i]);
@@ -1260,7 +1609,17 @@ int main() {
       }
 
     }else{
+
+
+
+      window.clear(BgColor);
+      window.draw(background_texture);
+      window.draw(title);
+
       window.draw(start_game_buttonRS);
+      window.draw(two_players_buttonRS);
+      window.draw(three_players_buttonRS);
+      window.draw(four_players_buttonRS);
       window.display();
 
     }

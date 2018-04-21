@@ -1,10 +1,8 @@
 # todo
 - [ ] player pas assez visible en blanc sur jaune
-- [ ] adding a main menu
 - [ ] adding new textures
 - [ ] separate the main file into smaller classes
-- [ ] add a splashscreen
-- [ ] add an algorithm to play with other players
+- ~~[ ] add a splashscreen~~
 
 # done
 - [x] ability to rotate
@@ -21,3 +19,5 @@
 - [x] add score text to the Game
 - [x] add time text to the game
 - [x] add game over screen
+- [x] add an algorithm to play with other players
+- [x] add a main menu
