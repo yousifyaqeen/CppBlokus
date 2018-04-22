@@ -3,7 +3,8 @@
 - [ ] adding new textures
 - [ ] separate the main file into smaller classes
 - ~~[ ] add a splashscreen~~
-
+- [ ] piece with mouse
+- [ ] colors
 # done
 - [x] ability to rotate
 - [x] each piece has its own id

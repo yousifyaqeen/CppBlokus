@@ -1098,7 +1098,7 @@ int                     flip_counter=0;
 int tmpx=500;
 int tmpy=500;
   while (window.isOpen()) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
     window.setSize(Vector2u(window_width,window_height));
 
@@ -1367,9 +1367,8 @@ int tmpy=500;
       }
 
 
-
-      //*********************************************************************************************************************************************************
 /*
+      //*********************************************************************************************************************************************************
       //game play algorthme for each player
       int MousPosx = (int) event.mouseButton.x;
       int MousPosy = (int)event.mouseButton.y;
@@ -1461,9 +1460,9 @@ int tmpy=500;
         }
 
 
-}*/
+}
 
-
+*/
 
           if(!start_game){
 
@@ -1550,9 +1549,11 @@ int tmpy=500;
       }
 
     }
+
+    
 cout<<count_rotation<< " change piece : " << change_piece << "\n";
     if(start_game){
-      if((players[0].canPlay||players[1].canPlay||players[2].canPlay||players[3].canPlay)||continue_playing){
+      if((players[0].canPlay||players[1].canPlay||players[2].canPlay||players[3].canPlay||continue_playing){
         window.clear(BgColor);
         window.draw(background_texture);
         window.draw(map);
