@@ -28,6 +28,8 @@ const int   main_board_tile_height     = 20 ;
 const int   player_board_tile_height   = 12 ;
 //main board size (the board is a 24*24 matrix )
 const int   main_board_size            = 24 ;
+const int   main_board_width           = main_board_size*main_board_tile_width;
+const int   main_board_height           = main_board_size*main_board_tile_height;
 //the height of the player hand matrix
 const int   player_board_matrix_width  = 12 ;
 //the width of the player hand matrix
@@ -284,6 +286,7 @@ struct player{
   TileMap    cTile;
   playerHand pboard;
   Rectangle  pos;
+  TileMap mouse;
   bool canPlay;
 
 };
@@ -1047,7 +1050,6 @@ int main() {
   FooterS.setSize(Vector2f(Footer.width,Footer.height));
   FooterS.setPosition(Footer.x,Footer.y);
   FooterS.setFillColor(Footer.color);
-  RectangleShape contain[4];
 
 sf::Color background_texture_color(50, 255, 126,50);
   RectangleShape background_texture;
@@ -1056,12 +1058,16 @@ sf::Color background_texture_color(50, 255, 126,50);
   background_texture.setPosition(0.0,0.0);
   background_texture.setFillColor(background_texture_color);
   background_texture.setTexture(&T_background_texture);
+
+  RectangleShape contain[4];
+
   for(int i=0 ; i<4;i++){
     contain[i].setSize(Vector2f(tile_matrix_size* player_board_tile_width,tile_matrix_size* player_board_tile_width));
     contain[i].setPosition(playerTileDisplay[i].x ,playerTileDisplay[i].y);
     contain[i].setOutlineThickness(out_line_size);
     contain[i].setFillColor(sf::Color::Transparent);
   }
+
 
   SoundBuffer placebuffer;
   placebuffer.loadFromFile("res/place.wav");
@@ -1119,7 +1125,7 @@ int tmpy=500;
           cout<<"imhere";
         }
       }
-      if(players[current_player].canPlay&&start_game){
+    /*  if(players[current_player].canPlay&&start_game){
         stop_itiration=false;
                 for(int i=0;i<23;i++){
                   for(int j=0;j<23;j++){
@@ -1355,7 +1361,7 @@ int tmpy=500;
           current_player=0;
         }
       }
-
+*/
 
 
     Event event;
@@ -1367,11 +1373,21 @@ int tmpy=500;
       }
 
 
-/*
+
       //*********************************************************************************************************************************************************
       //game play algorthme for each player
       int MousPosx = (int) event.mouseButton.x;
       int MousPosy = (int)event.mouseButton.y;
+
+
+      if (!players[current_player].mouse.load("res/ptiles60.png", sf::Vector2u( 20, 20), players[current_player].Hand[idp[current_player]-1].table, tile_matrix_size, tile_matrix_size,sf::Mouse::getPosition(window).x -((tile_matrix_size*20)/2),sf::Mouse::getPosition(window).y- ((tile_matrix_size*20)/2))) {
+        cout << "cant load the Texture file associated to player tiles   : res/ptiles36.png";
+
+        return -1;
+      }
+
+
+
       chrono[current_player].resume();
 
       if (event.type == sf::Event::MouseButtonPressed&&players[current_player].canPlay&&start_game) {
@@ -1462,7 +1478,7 @@ int tmpy=500;
 
 }
 
-*/
+
 
           if(!start_game){
 
@@ -1548,12 +1564,13 @@ int tmpy=500;
         return -1;
       }
 
+
     }
 
-    
+
 cout<<count_rotation<< " change piece : " << change_piece << "\n";
     if(start_game){
-      if((players[0].canPlay||players[1].canPlay||players[2].canPlay||players[3].canPlay||continue_playing){
+      if(players[0].canPlay||players[1].canPlay||players[2].canPlay||players[3].canPlay||continue_playing){
         window.clear(BgColor);
         window.draw(background_texture);
         window.draw(map);
@@ -1575,8 +1592,15 @@ cout<<count_rotation<< " change piece : " << change_piece << "\n";
           window.draw(player_clock_display[i]);
           window.draw(contain[i]);
         }
+        if(sf::Mouse::getPosition(window).x >main_board_position_x&&sf::Mouse::getPosition(window).x <main_board_position_x+main_board_width&&sf::Mouse::getPosition(window).y >main_board_position_y&&sf::Mouse::getPosition(window).y <main_board_position_y+main_board_height){
+ window.setMouseCursorVisible(false);
+         window.draw(players[current_player].mouse);
+}else{
+   window.setMouseCursorVisible(true);
+}
         window.draw(title);
         window.display();
+
       }else{
 
 
