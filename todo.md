@@ -5,6 +5,9 @@
 - ~~[ ] add a splashscreen~~
 - [ ] piece with mouse
 - [ ] colors
+- [ ] delete background
+- [ ] make color to place tiles
+
 # done
 - [x] ability to rotate
 - [x] each piece has its own id
