@@ -171,6 +171,7 @@ struct Board{
   //definning the board to be refrenced after and modified
   int table[main_board_size*main_board_size];
   int matrix[main_board_size][main_board_size];
+
 };
 
 
@@ -530,11 +531,12 @@ int is_Valid(tile check,Board lvl,int x,int y,int color){
 
       return 0;
     }
-    else if(!is_Equal(tmp,x+col[i],y+row[i],0 )){
+    else if(is_Equal(tmp,x+col[i],y+row[i],5 )){
 
-      return 0;
+    }else if(is_Equal(tmp,x+col[i],y+row[i],0 )){
+
     }else{
-
+      return 0;
 
     }
     bool s1 = is_Equal(tmp,1+x+col[i],y+row[i],color);
@@ -547,8 +549,6 @@ int is_Valid(tile check,Board lvl,int x,int y,int color){
 
 
     if(s1){
-
-
       side=0;
     }
     if(s2){
@@ -684,7 +684,7 @@ int main() {
   sftools::Chronometer chrono[4];
 
   int current_player=0;
-
+  bool withbots=true;
   TileMap map;
 
   bool playwinsound=true;
@@ -1108,7 +1108,7 @@ sf::Color background_texture_color(50, 255, 126,50);
 
   while (window.isOpen()) {
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
     window.setSize(Vector2u(window_width,window_height));
 
@@ -1128,7 +1128,8 @@ sf::Color background_texture_color(50, 255, 126,50);
           players[i].canPlay=false;
         }
       }
-     if(players[current_player].canPlay&&start_game){
+
+     if(players[current_player].canPlay&&start_game&&withbots){
        count_number_of_possible_places[current_player]=0;
 
         stop_itiration=false;
@@ -1371,8 +1372,6 @@ sf::Color background_texture_color(50, 255, 126,50);
                   }
                 }
 
-
-
                   if(change_piece>21&&!stop_itiration){
                     change_piece=0;
                     players[current_player].canPlay=false;
@@ -1393,8 +1392,33 @@ sf::Color background_texture_color(50, 255, 126,50);
           current_player=0;
         }
       }
+      for(int i=1;i<23;i++){
+        for(int j=1;j<23;j++){
+            if(GameBoard.matrix[i][j]==5){
+              GameBoard.matrix[i][j]=0;
+              GameBoard=to_Board(GameBoard.matrix);
 
+        }
+      }
+    }
+      for(int i=1;i<23;i++){
+        for(int j=1;j<23;j++){
+            if(is_Valid(players[current_player].Hand[idp[current_player]-1],GameBoard,i+1,j+1,players[current_player].id)){
+                    GameBoard.matrix[i+1][j+1]=5;
+                    GameBoard=to_Board(GameBoard.matrix);
+            }if(is_Valid(players[current_player].Hand[idp[current_player]-1],GameBoard,i-1,j+1,players[current_player].id)){
+              GameBoard.matrix[i-1][j+1]=5;
+              GameBoard=to_Board(GameBoard.matrix);
+            }if(is_Valid(players[current_player].Hand[idp[current_player]-1],GameBoard,i+1,j-1,players[current_player].id)){
+              GameBoard.matrix[i+1][j-1]=5;
+              GameBoard=to_Board(GameBoard.matrix);
+            }if(is_Valid(players[current_player].Hand[idp[current_player]-1],GameBoard,i-1,j-1,players[current_player].id)){
+              GameBoard.matrix[i-1][j-1]=5;
+              GameBoard=to_Board(GameBoard.matrix);
+            }
 
+        }
+      }
 
     Event event;
     while (window.pollEvent(event)) {
@@ -1403,7 +1427,7 @@ sf::Color background_texture_color(50, 255, 126,50);
         window.close();
 
       }
-/*
+
 
 
       //*********************************************************************************************************************************************************
@@ -1412,12 +1436,11 @@ sf::Color background_texture_color(50, 255, 126,50);
       int MousPosy = (int)event.mouseButton.y;
 
 
-      if (!players[current_player].mouse.load("res/ptiles60.png", sf::Vector2u( 20, 20), players[current_player].Hand[idp[current_player]-1].table, tile_matrix_size, tile_matrix_size,sf::Mouse::getPosition(window).x -((tile_matrix_size*20)/2),sf::Mouse::getPosition(window).y- ((tile_matrix_size*20)/2))) {
+      if (!players[current_player].mouse.load("res/ptiles60.png", sf::Vector2u( 20, 20), players[current_player].Hand[idp[current_player]-1].table, tile_matrix_size, tile_matrix_size,sf::Mouse::getPosition(window).x -((tile_matrix_size*20)/2),sf::Mouse::getPosition(window).y- ((tile_matrix_size*20)/2))&&!withbots) {
         cout << "cant load the Texture file associated to player tiles   : res/ptiles36.png";
 
         return -1;
       }
-
 
 
       chrono[current_player].resume();
@@ -1510,7 +1533,7 @@ sf::Color background_texture_color(50, 255, 126,50);
 
 }
 
-*/
+
 
           if(!start_game){
 
@@ -1626,12 +1649,12 @@ sf::Color background_texture_color(50, 255, 126,50);
           window.draw(player_clock_display[i]);
           window.draw(contain[i]);
         }
-      /*  if(sf::Mouse::getPosition(window).x >main_board_position_x&&sf::Mouse::getPosition(window).x <main_board_position_x+main_board_width&&sf::Mouse::getPosition(window).y >main_board_position_y&&sf::Mouse::getPosition(window).y <main_board_position_y+main_board_height){
+       if(sf::Mouse::getPosition(window).x >main_board_position_x&&sf::Mouse::getPosition(window).x <main_board_position_x+main_board_width&&sf::Mouse::getPosition(window).y >main_board_position_y&&sf::Mouse::getPosition(window).y <main_board_position_y+main_board_height){
  window.setMouseCursorVisible(false);
          window.draw(players[current_player].mouse);
 }else{
    window.setMouseCursorVisible(true);
-}*/
+}
         window.draw(title);
         window.display();
 
