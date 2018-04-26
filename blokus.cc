@@ -684,7 +684,7 @@ int main() {
   sftools::Chronometer chrono[4];
 
   int current_player=0;
-  bool withbots=true;
+  bool withbots=false;
   TileMap map;
 
   bool playwinsound=true;
@@ -1108,7 +1108,7 @@ sf::Color background_texture_color(50, 255, 126,50);
 
   while (window.isOpen()) {
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    std::this_thread::sleep_for(std::chrono::milliseconds(0));
 
     window.setSize(Vector2u(window_width,window_height));
 
@@ -1129,7 +1129,7 @@ sf::Color background_texture_color(50, 255, 126,50);
         }
       }
 
-     if(players[current_player].canPlay&&start_game&&withbots){
+  /*   if(players[current_player].canPlay&&start_game&&withbots){
        count_number_of_possible_places[current_player]=0;
 
         stop_itiration=false;
@@ -1419,7 +1419,7 @@ sf::Color background_texture_color(50, 255, 126,50);
 
         }
       }
-
+*/
     Event event;
     while (window.pollEvent(event)) {
 
@@ -1436,7 +1436,7 @@ sf::Color background_texture_color(50, 255, 126,50);
       int MousPosy = (int)event.mouseButton.y;
 
 
-      if (!players[current_player].mouse.load("res/ptiles60.png", sf::Vector2u( 20, 20), players[current_player].Hand[idp[current_player]-1].table, tile_matrix_size, tile_matrix_size,sf::Mouse::getPosition(window).x -((tile_matrix_size*20)/2),sf::Mouse::getPosition(window).y- ((tile_matrix_size*20)/2))&&!withbots) {
+      if (!players[current_player].mouse.load("res/ptiles60.png", sf::Vector2u( 20, 20), players[current_player].Hand[idp[current_player]-1].table, tile_matrix_size, tile_matrix_size,sf::Mouse::getPosition(window).x -((tile_matrix_size*20)/2),sf::Mouse::getPosition(window).y- ((tile_matrix_size*20)/2))) {
         cout << "cant load the Texture file associated to player tiles   : res/ptiles36.png";
 
         return -1;
