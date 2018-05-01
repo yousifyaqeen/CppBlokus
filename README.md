@@ -26,3 +26,4 @@ cd %cd%\build
 blokus.exe
 
 ```
+or use the .bat file
