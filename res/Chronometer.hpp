@@ -19,7 +19,7 @@
  misrepresented as being the original software.
 
  3. This notice may not be removed or altered from any source distribution.
- 
+
  */
 
 /*!
@@ -47,7 +47,7 @@ namespace sftools
     public:
         /*!
          @brief Constructor
-         
+
          @param initialTime Initial time elapsed
          */
         Chronometer(sf::Time initialTime = sf::Time::Zero)
@@ -58,7 +58,7 @@ namespace sftools
 
         /*!
          @brief Add some time
-         
+
          @param time Time to be added to the time elapsed
          @return Time elapsed
          */
@@ -73,7 +73,7 @@ namespace sftools
 
         /*!
          @brief Reset the chronometer
-         
+
          @param start if true the chronometer automatically starts
          @return Time elapsed on the chronometer before the reset
          */
@@ -91,7 +91,7 @@ namespace sftools
 
         /*!
          @brief Pause the chronometer
-         
+
          @return Time elapsed
 
          @see toggle
@@ -108,9 +108,9 @@ namespace sftools
 
         /*!
          @brief Resume the chronometer
-         
+
          @return Time elapsed
-         
+
          @see toggle
          */
         sf::Time resume()
@@ -125,10 +125,10 @@ namespace sftools
 
         /*!
          @brief Pause or resume the chronometer
-         
+
          If the chronometer is running the it is paused;
          otherwise it is resumes.
-         
+
          @return Time elapsed
 
          @see pause
@@ -154,7 +154,7 @@ namespace sftools
 
         /*!
          @brief Give the amount of time elapsed since the chronometer was started
-         
+
          @return Time elapsed
          */
         sf::Time getElapsedTime() const
@@ -175,7 +175,7 @@ namespace sftools
          @brief Implicit conversion to sf::Time
 
          @return Time elapsed
-         
+
          @see getElapsedTime
          */
         operator sf::Time() const

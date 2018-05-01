@@ -924,7 +924,7 @@ int main() {
 
 
   sf::Texture T_background_texture;
-      if (!T_background_texture.loadFromFile("src/BlokusTiles.png"))
+      if (!T_background_texture.loadFromFile("res/BlokusTiles.png"))
           return EXIT_FAILURE;
 
 
