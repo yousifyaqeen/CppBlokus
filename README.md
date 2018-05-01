@@ -2,18 +2,21 @@
 Projet d'initiation à l'ingénierie logicielle CMI Informatique L1
 
 ## to compile on linux you need will need :
-* clang c++ compiler
-* SFML installed
+* [clang](https://clang.llvm.org/) c++ compiler
+* [sfml](https://www.sfml-dev.org/index.php) installed
 ```
 make
 ./blokus
+
 ```
 
 ## to compile on windows you need will need :
 * [MinGW Builds 6.1.0 (64-bit)]( https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win64/Personal%20Builds/mingw-builds/6.1.0/threads-posix/seh/x86_64-6.1.0-release-posix-seh-rt_v5-rev0.7z/download)
 
+unzip the file then add MinGW/bin to paths
 * [sfml](https://www.sfml-dev.org/index.php) files are included
 
+to do it manually
 ```
 mkdir build
 g++ -Wall -g  -I%cd%\include -c "%cd%\blokus.cc" -o build\blokus.o 2> compiling_error.txt
