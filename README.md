@@ -23,7 +23,7 @@ to remove them from paths
 
 * [sfml](https://www.sfml-dev.org/index.php) files are included
 
- use [compileonwindows] (https://raw.githubusercontent.com/yousifyaqeen/CppBlokus/master/compileonwindows.bat)
+ use [compileonwindows](https://raw.githubusercontent.com/yousifyaqeen/CppBlokus/master/compileonwindows.bat)
 
 to do it manually
 
