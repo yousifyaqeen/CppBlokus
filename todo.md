@@ -8,6 +8,9 @@
 - [ ] delete background
 - [ ] make color to place tiles
 
+# v2.0
+- [ ] put  buttons in an array for smaller code
+
 # done
 - [x] ability to rotate
 - [x] each piece has its own id
