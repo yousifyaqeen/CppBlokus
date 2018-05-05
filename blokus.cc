@@ -29,7 +29,7 @@ const int   player_board_tile_height   = 12 ;
 //main board size (the board is a 24*24 matrix )
 const int   main_board_size            = 24 ;
 const int   main_board_width           = main_board_size*main_board_tile_width;
-const int   main_board_height           = main_board_size*main_board_tile_height;
+const int   main_board_height          = main_board_size*main_board_tile_height;
 //the height of the player hand matrix
 const int   player_board_matrix_width  = 12 ;
 //the width of the player hand matrix
@@ -50,6 +50,7 @@ const int   tile_matrix_size           = 5 ;
 const int   total_number_of_tiles      = 21;
 
 int         number_of_players          = 4;//between 1 and 4
+int         total_number_of_players    = 4;
 
 int tilesTableWithCenter[] =
 // an array defining the player board and each piece has 2 associated to its
@@ -248,6 +249,10 @@ private:
 };
 
 
+struct Position{
+  int x;
+int y;
+};
 struct tile{
   //definning the tile to be refrenced after and modified
   int id;//each tile has its unique id
@@ -1187,21 +1192,21 @@ int main() {
   for(int i = 0 ; i < 4 ; i++){
     count_number_of_possible_places[current_player]=0;
   }
-
   /********************************************************************************************/
   Board GameBoard     = to_Board(iniMap);
   playerHand testFull = set_Player_Hand(tilesTableWithEachPiece);
 
   /***************************************************************************************/
+  int positionx[] = {1,1,-1,-1};
+  int positiony[] = {1,-1,-1,1};
   while (window.isOpen()) {
 
     window_width  = window.getSize().x;
     window_height = window.getSize().y;
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(0));
 
     for(int i = 0 ; i < 4 ; i++){
-      if( i == current_player){
+      if( i == current_player &&players[current_player].canPlay){
         pAreasShape[i].setOutlineColor(sf::Color::Red);
         contain[i].setOutlineColor(sf::Color::Red);
       }else{
@@ -1211,51 +1216,58 @@ int main() {
     }
 
 
-    if( number_of_players != 4){
-      for(int i = 4 ; i > number_of_players-1 ; i--){
+    if( number_of_players != 4 ){
+      for(int i = 4 ; i > number_of_players-1 ; i=i-1){
+
         players[i].bot = true;
       }
     }
+
 /**********************************************************************************************************/
     if(players[current_player].canPlay&&players[current_player].bot&&start_game){
 
-      count_number_of_possible_places[current_player]=0;
+      //count_number_of_possible_places[current_player]=0;
 
       bot_do_rotate=false;
 
-/*      for(int i = 1 ; i < main_board_size-1 ; i++){
+    /*  for(int i = 1 ; i < main_board_size-1 ; i++){
         for(int j = 1 ; j < main_board_size-1 ; j++ ){
 
           if( is_Valid( players[current_player].Hand[idp[current_player]-1] , GameBoard , i+1 , j+1 , players[current_player].id)){
-
-            count_number_of_possible_places[current_player] = count_number_of_possible_places[current_player] + 1;
+            testpos.x=i+1;
+            testpos.y=j+1;
+            whattochose.push_back(testpos);
 
           }if( is_Valid( players[current_player].Hand[idp[current_player]-1] , GameBoard, i-1 , j+1 , players[current_player].id)){
-
-            count_number_of_possible_places[current_player] = count_number_of_possible_places[current_player] + 1;
+            testpos.x=i-1;
+            testpos.y=j+1;
+            whattochose.push_back(testpos);
 
           }if( is_Valid( players[current_player].Hand[idp[current_player]-1] , GameBoard , i+1 , j-1 , players[current_player].id)){
-
-            count_number_of_possible_places[current_player] = count_number_of_possible_places[current_player]+1;
+            testpos.x=i+1;
+            testpos.y=j-1;
+            whattochose.push_back(testpos);
 
           }if( is_Valid( players[current_player].Hand[idp[current_player]-1] , GameBoard , i-1 , j-1 , players[current_player].id)){
-
-            count_number_of_possible_places[current_player] = count_number_of_possible_places[current_player]+1;
+            testpos.x=i-1;
+            testpos.y=j-1;
+           whattochose.push_back(testpos);
 
           }
 
         }
       }*/
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
       for( int i = 1 ; i < main_board_size - 1 ; i++){
 
         for (int j = 1 ; j < main_board_size - 1 ; j++){
+          for(int p = 0 ; p<4 ;p++){
+          if( is_Valid(players[current_player].Hand[idp[current_player]-1] , GameBoard , i+positionx[p] ,j+positiony[p], players[current_player].id)){
 
-          if( is_Valid(players[current_player].Hand[idp[current_player]-1] , GameBoard , i+1 ,j+1 , players[current_player].id)){
+            GameBoard                                         = do_Move(players[current_player].Hand[idp[current_player]-1],GameBoard,i+positionx[p] ,j+positiony[p],players[current_player].id);
 
-            GameBoard                                         = do_Move(players[current_player].Hand[idp[current_player]-1],GameBoard,i+1,j+1,players[current_player].id);
-
-            players[current_player].pboard                    = is_Valid(testFull, players[current_player].pboard,i+1,j+1,players[current_player].Hand[idp[current_player]-1].size,idp[current_player]);
+            players[current_player].pboard                    = is_Valid(testFull, players[current_player].pboard,i+positionx[p] ,j+positiony[p],players[current_player].Hand[idp[current_player]-1].size,idp[current_player]);
             players[current_player].score                     = players[current_player].score+tiles[idp[current_player]-1].size;
             players[current_player].Have[idp[current_player]] = 0;
             chrono[current_player].pause();
@@ -1287,7 +1299,7 @@ int main() {
             count_rotation     = 0;
             flip_counter       = 0;
 
-            if(current_player + 1 < 4){
+            if(current_player + 1 < total_number_of_players){
               current_player++;
             }else{
               current_player   = 0;
@@ -1297,142 +1309,8 @@ int main() {
             i                  = 24;
             j                  = 24;
 
-          }else if(is_Valid( players[current_player].Hand[idp[current_player]-1] , GameBoard , i-1 , j+1 , players[current_player].id)){
-
-            GameBoard                                         = do_Move( players[current_player].Hand[idp[current_player]-1] , GameBoard , i-1 , j+1 , players[current_player].id);
-            players[current_player].pboard                    = is_Valid(testFull , players[current_player].pboard , i-1 , j+1 , players[current_player].Hand[idp[current_player]-1].size , idp[current_player]);
-            players[current_player].score                     = players[current_player].score + tiles[idp[current_player]-1].size;
-            players[current_player].Have[idp[current_player]] = 0;
-            chrono[current_player].pause();
-            placesound.play();
-
-            if(players[current_player].score  == 89){
-              players[current_player].canPlay                 = false;
-            }else{
-
-              if( idp[current_player] > 1 && players[current_player].Have[idp[current_player]-1 ] != 0){
-
-                idp[current_player]--;
-
-              }else{
-
-                for(int i = total_number_of_tiles ; i > 1 ; i--){
-
-                  if(players[current_player].Have[i]!=0){
-
-                    idp[current_player] = i;
-                    i                   = 0;
-
-                  }
-                }
-              }
-
-            }
-            count_rotation = 0;
-            flip_counter   = 0;
-
-            if( current_player + 1 < 4 ){
-              current_player++;
-            }else{
-              current_player = 0;
-            }
-            bot_do_rotate = true;
-
-            i             = 24;
-            j             = 24;
-
-          }else if(is_Valid( players[current_player].Hand[idp[current_player]-1] , GameBoard , i+1 , j-1 , players[current_player].id)){
-
-            GameBoard                                         = do_Move(players[current_player].Hand[idp[current_player]-1],GameBoard,i+1,j-1,players[current_player].id);
-            players[current_player].pboard                    = is_Valid(testFull, players[current_player].pboard,i+1,j-1,players[current_player].Hand[idp[current_player]-1].size,idp[current_player]);
-            players[current_player].score                     = players[current_player].score+tiles[idp[current_player]-1].size;
-            players[current_player].Have[idp[current_player]] = 0;
-            chrono[current_player].pause();
-            placesound.play();
-
-            if(players[current_player].score  == 89){
-              players[current_player].canPlay = false;
-
-            }else{
-              if( idp[current_player] > 0 && players[current_player].Have[idp[current_player]-1] != 0){
-
-                idp[current_player]--;
-
-              }else{
-
-                for(int i = total_number_of_tiles ; i > 1 ; i--){
-
-                  if(players[current_player].Have[i] != 0){
-
-                    idp[current_player] = i ;
-                    i                   = 0 ;
-
-
-                  }
-                }
-
-              }
-            }
-            count_rotation = 0;
-            flip_counter   = 0;
-
-            if(current_player + 1 < 4){
-              current_player++;
-            }else{
-              current_player = 0;
-            }
-            bot_do_rotate    = true;
-
-            i = 24;
-            j = 24;
-
-          }else
-
-          if(is_Valid(players[current_player].Hand[idp[current_player]-1],GameBoard,i-1,j-1,players[current_player].id)){
-
-            GameBoard                                         = do_Move(players[current_player].Hand[idp[current_player]-1],GameBoard,i-1,j-1,players[current_player].id);
-            players[current_player].pboard                    = is_Valid(testFull, players[current_player].pboard,i-1,j-1,players[current_player].Hand[idp[current_player]-1].size,idp[current_player]);
-            players[current_player].score                     = players[current_player].score+tiles[idp[current_player]-1].size;
-            players[current_player].Have[idp[current_player]] = 0;
-            chrono[current_player].pause();
-            placesound.play();
-
-            if(players[current_player].score == 89){
-
-              players[current_player].canPlay = false;
-
-            }else{
-              if(idp[current_player] > 1 && players[current_player].Have[idp[current_player]-1] != 0){
-
-                idp[current_player]--;
-
-              }else{
-
-                for(int i = total_number_of_tiles ; i > 1 ;i-- ){
-
-                  if(players[current_player].Have[i] != 0){
-
-                    idp[current_player] = i ;
-                    i                   = 0 ;
-
-                  }
-                }
-              }
-
-            }
-            bot_do_rotate  = true;
-            count_rotation = 0;
-            flip_counter   = 0;
-
-            if(current_player + 1 < 4){
-              current_player++;
-            }else{
-              current_player = 0 ;
-            }
-            i = 24;
-            j = 24;
-
           }
+        }
         }
       }
       if( !bot_do_rotate && count_rotation <= 4){
@@ -1476,7 +1354,7 @@ int main() {
       if(change_piece>total_number_of_tiles&&!bot_do_rotate){
         change_piece                    = 0;
         players[current_player].canPlay = false;
-        if(current_player+1<4){
+        if(current_player+1<total_number_of_players){
           current_player++;
         }else{
           current_player                = 0;
@@ -1487,7 +1365,7 @@ int main() {
 
     }else if(!players[current_player].canPlay){
 
-      if(current_player+1<4){
+      if(current_player+1<total_number_of_players){
         current_player++;
       }else{
         current_player = 0;
@@ -1504,7 +1382,7 @@ int main() {
     }
 
 /***************************************************************************************************/
-
+if(!players[current_player].bot&&players[current_player].canPlay){
     for(int i = 1;i<23;i++){
       for(int j = 1;j<23;j++){
         if(is_Valid(players[current_player].Hand[idp[current_player]-1],GameBoard,i+1,j+1,players[current_player].id)){
@@ -1531,7 +1409,7 @@ int main() {
 
       }
     }
-
+}
 /*****************************************************************************************************************/
 
     Event event;
@@ -1603,7 +1481,7 @@ int main() {
               }
 
             }
-            if(current_player+1<number_of_players){
+            if(current_player+1<total_number_of_players){
               current_player++;
             }else{
               current_player=0;
@@ -1652,7 +1530,7 @@ int main() {
         }
 
       }else if(!players[current_player].canPlay){
-        if(current_player+1<number_of_players){
+        if(current_player+1<total_number_of_players){
           current_player++;
         }else{
           current_player = 0;
@@ -1767,10 +1645,9 @@ int main() {
 
 
     }
-
-
+  
     if(start_game){
-      if(players[0].canPlay||players[1].canPlay||players[2].canPlay||players[3].canPlay&&continue_playing){
+      if((players[0].canPlay||players[1].canPlay||players[2].canPlay||players[3].canPlay)||(continue_playing)){
         window.clear(BgColor);
         window.draw(map);
         window.draw(HeaderS);
@@ -1791,12 +1668,13 @@ int main() {
           window.draw(player_clock_display[i]);
           window.draw(contain[i]);
         }
+        if(!players[current_player].bot&&players[current_player].canPlay){
         if(sf::Mouse::getPosition(window).x >main_board_position_x&&sf::Mouse::getPosition(window).x <main_board_position_x+main_board_width&&sf::Mouse::getPosition(window).y >main_board_position_y&&sf::Mouse::getPosition(window).y <main_board_position_y+main_board_height){
           window.setMouseCursorVisible(false);
           window.draw(players[current_player].mouse);
         }else{
           window.setMouseCursorVisible(true);
-        }
+        }}
         window.draw(title);
         window.display();
 
