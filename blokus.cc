@@ -295,7 +295,7 @@ struct player{
   TileMap    mouse;
   bool       canPlay;
   bool       bot; // is the plyer a bot?
-  bool       showHelp;
+  bool       showHelp;//add help button
 
 };
 
@@ -916,10 +916,88 @@ int main() {
   /********************************************************************************************/
 
 
+  Rectangle two_bot_players_buttonR;
+  two_bot_players_buttonR.width    = window_width*0.12;
+  two_bot_players_buttonR.height   = window_height*0.1;
+  two_bot_players_buttonR.x        = window_width/2+two_bot_players_buttonR.width/2;
+  two_bot_players_buttonR.y        = window_height/3;
+
+
+  sf::Texture t_two_bot_player;
+
+  if (!t_two_bot_player.loadFromFile("res/2player.png"))
+  {
+    cout << "cant load the Texture file associated to 2 player button  : res/2player.png";
+  }
+
+  RectangleShape two_bot_players_buttonRS;
+
+  two_bot_players_buttonRS.setSize(Vector2f(two_bot_players_buttonR.width,two_bot_players_buttonR.height));
+  two_bot_players_buttonRS.setPosition(two_bot_players_buttonR.x,two_bot_players_buttonR.y);
+  two_bot_players_buttonRS.setTexture(&t_two_bot_player);
+
+
+  /********************************************************************************************/
+
+
+  Rectangle three_bot_players_buttonR;
+
+  three_bot_players_buttonR.width  = window_width*0.12;
+  three_bot_players_buttonR.height = window_height*0.1;
+  three_bot_players_buttonR.x      = window_width/2+three_bot_players_buttonR.width/2;
+  three_bot_players_buttonR.y      = window_height/2;
+
+
+  sf::Texture t_three_bot_player;
+
+  if (!t_three_bot_player.loadFromFile("res/3player.png"))
+  {
+    cout << "cant load the Texture file associated to 3 player button  : res/3player.png";
+  }
+
+  RectangleShape three_bot_players_buttonRS;
+
+  three_bot_players_buttonRS.setSize(Vector2f(three_bot_players_buttonR.width,three_bot_players_buttonR.height));
+  three_bot_players_buttonRS.setPosition(three_bot_players_buttonR.x,three_bot_players_buttonR.y);
+  three_bot_players_buttonRS.setTexture(&t_three_bot_player);
+
+
+  /********************************************************************************************/
+
+
+  Rectangle four_bot_players_buttonR;
+
+  four_bot_players_buttonR.width   = window_width*0.12;
+  four_bot_players_buttonR.height  = window_height*0.1;
+  four_bot_players_buttonR.x       = window_width/2+four_bot_players_buttonR.width/2;
+  four_bot_players_buttonR.y       = window_height/2+three_bot_players_buttonR.y-two_bot_players_buttonR.y;
+
+
+
+  sf::Texture t_four_bot_player;
+
+  if (!t_four_bot_player.loadFromFile("res/4player.png"))
+  {
+    cout << "cant load the Texture file associated to 4 player button  : res/4player.png";
+  }
+
+
+  RectangleShape four_bot_players_buttonRS;
+
+  four_bot_players_buttonRS.setSize(Vector2f(four_bot_players_buttonR.width,four_bot_players_buttonR.height));
+  four_bot_players_buttonRS.setPosition(four_bot_players_buttonR.x,four_bot_players_buttonR.y);
+  four_bot_players_buttonRS.setTexture(&t_four_bot_player);
+
+
+  /********************************************************************************************/
+
+  /********************************************************************************************/
+
+
   Rectangle two_players_buttonR;
   two_players_buttonR.width    = window_width*0.12;
   two_players_buttonR.height   = window_height*0.1;
-  two_players_buttonR.x        = window_width/2-two_players_buttonR.width/2;
+  two_players_buttonR.x        = window_width/3-two_players_buttonR.width/2;
   two_players_buttonR.y        = window_height/3;
 
 
@@ -944,7 +1022,7 @@ int main() {
 
   three_players_buttonR.width  = window_width*0.12;
   three_players_buttonR.height = window_height*0.1;
-  three_players_buttonR.x      = window_width/2-three_players_buttonR.width/2;
+  three_players_buttonR.x      = window_width/3-three_players_buttonR.width/2;
   three_players_buttonR.y      = window_height/2;
 
 
@@ -969,7 +1047,7 @@ int main() {
 
   four_players_buttonR.width   = window_width*0.12;
   four_players_buttonR.height  = window_height*0.1;
-  four_players_buttonR.x       = window_width/2-four_players_buttonR.width/2;
+  four_players_buttonR.x       = window_width/3-four_players_buttonR.width/2;
   four_players_buttonR.y       = window_height/2+three_players_buttonR.y-two_players_buttonR.y;
 
 
@@ -989,8 +1067,7 @@ int main() {
   four_players_buttonRS.setTexture(&t_four_player);
 
 
-  /********************************************************************************************/
-
+  /***********************************/
 
   Rectangle playerTileDisplay[4];
 
@@ -1183,7 +1260,7 @@ int main() {
   int flip_counter      = 0;
   int change_piece      = 0;
 
-
+int counterofpieces =0;
   /********************************************************************************************/
 
   //used to calculate the number of moves the player
@@ -1209,6 +1286,7 @@ int main() {
       if( i == current_player &&players[current_player].canPlay){
         pAreasShape[i].setOutlineColor(sf::Color::Red);
         contain[i].setOutlineColor(sf::Color::Red);
+
       }else{
         pAreasShape[i].setOutlineColor(sf::Color::White);
         contain[i].setOutlineColor(sf::Color::White);
@@ -1216,51 +1294,29 @@ int main() {
     }
 
 
-    if( number_of_players != 4 ){
-      for(int i = 4 ; i > number_of_players-1 ; i=i-1){
 
-        players[i].bot = true;
-      }
-    }
 
 /**********************************************************************************************************/
     if(players[current_player].canPlay&&players[current_player].bot&&start_game){
+      std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
       //count_number_of_possible_places[current_player]=0;
 
       bot_do_rotate=false;
 
-    /*  for(int i = 1 ; i < main_board_size-1 ; i++){
+      for(int i = 1 ; i < main_board_size-1 ; i++){
         for(int j = 1 ; j < main_board_size-1 ; j++ ){
+          for(int p = 0 ; p<4 ;p++){
 
-          if( is_Valid( players[current_player].Hand[idp[current_player]-1] , GameBoard , i+1 , j+1 , players[current_player].id)){
-            testpos.x=i+1;
-            testpos.y=j+1;
-            whattochose.push_back(testpos);
+          if( is_Valid( players[current_player].Hand[idp[current_player]-1] , GameBoard , i+positionx[p] ,j+positiony[p], players[current_player].id)){
 
-          }if( is_Valid( players[current_player].Hand[idp[current_player]-1] , GameBoard, i-1 , j+1 , players[current_player].id)){
-            testpos.x=i-1;
-            testpos.y=j+1;
-            whattochose.push_back(testpos);
-
-          }if( is_Valid( players[current_player].Hand[idp[current_player]-1] , GameBoard , i+1 , j-1 , players[current_player].id)){
-            testpos.x=i+1;
-            testpos.y=j-1;
-            whattochose.push_back(testpos);
-
-          }if( is_Valid( players[current_player].Hand[idp[current_player]-1] , GameBoard , i-1 , j-1 , players[current_player].id)){
-            testpos.x=i-1;
-            testpos.y=j-1;
-           whattochose.push_back(testpos);
 
           }
-
         }
-      }*/
-      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+      }
 
       for( int i = 1 ; i < main_board_size - 1 ; i++){
-
         for (int j = 1 ; j < main_board_size - 1 ; j++){
           for(int p = 0 ; p<4 ;p++){
           if( is_Valid(players[current_player].Hand[idp[current_player]-1] , GameBoard , i+positionx[p] ,j+positiony[p], players[current_player].id)){
@@ -1313,7 +1369,9 @@ int main() {
         }
         }
       }
+
       if( !bot_do_rotate && count_rotation <= 4){
+
         count_rotation++;
         rotatesound.play();
         players[current_player].Hand[idp[current_player]-1] = rotate_Clock_Wise(players[current_player].Hand[idp[current_player]-1]);
@@ -1327,13 +1385,14 @@ int main() {
         flipsound.play();
       }
       if(flip_counter != 0){
+
         flip_counter                                      = 0;
         change_piece++;
         count_rotation                                    = 0;
-        if(idp[current_player]>1&&players[current_player].Have[idp[current_player]-1] != 0){
+        if(idp[current_player]>1&&players[current_player].Have[idp[current_player]-1] != 0 ){
           idp[current_player]--;
         }else{
-          for(int i = total_number_of_tiles;i>1;i=i-1){
+          for(int i = 21;i!=idp[current_player]&&i>1;i=i-1){
             if(players[current_player].Have[i] != 0){
               if(i != idp[current_player] ){
                 idp[current_player]                       = i;
@@ -1352,6 +1411,7 @@ int main() {
       }
 
       if(change_piece>total_number_of_tiles&&!bot_do_rotate){
+
         change_piece                    = 0;
         players[current_player].canPlay = false;
         if(current_player+1<total_number_of_players){
@@ -1427,9 +1487,8 @@ if(!players[current_player].bot&&players[current_player].canPlay){
       int MousPosx = (int) sf::Mouse::getPosition(window).x;
       int MousPosy = (int)sf::Mouse::getPosition(window).y;
 
-
-      if (!players[current_player].mouse.load("res/ptiles60.png", sf::Vector2u( 20, 20), players[current_player].Hand[idp[current_player]-1].table, tile_matrix_size, tile_matrix_size,sf::Mouse::getPosition(window).x -((tile_matrix_size*20)/2),sf::Mouse::getPosition(window).y- ((tile_matrix_size*20)/2))) {
-        cout << "cant load the Texture file associated to player tiles   : res/ptiles36.png";
+      if (!players[current_player].mouse.load("res/ptiles60" +    std::to_string(current_player) +".png", sf::Vector2u( 20, 20), players[current_player].Hand[idp[current_player]-1].table, tile_matrix_size, tile_matrix_size,sf::Mouse::getPosition(window).x -((tile_matrix_size*20)/2),sf::Mouse::getPosition(window).y- ((tile_matrix_size*20)/2))) {
+        cout << "cant load the Texture file associated to player tiles   : res/ptiles60x.png";
 
         return -1;
       }
@@ -1559,24 +1618,52 @@ if(!players[current_player].bot&&players[current_player].canPlay){
 
             number_of_players = 2;
             start_game        = true;
-
+            players[2].canPlay =false;
+            players[3].canPlay =false;
           }
           if(MousPosx<three_players_buttonR.x + three_players_buttonR.width &&MousPosx>three_players_buttonR.x &&MousPosy<three_players_buttonR.y+three_players_buttonR.height&&MousPosy>three_players_buttonR.y){
 
             number_of_players = 3;
             start_game        = true;
-
+            players[3].canPlay =false;
           }
           if(MousPosx<four_players_buttonR.x + four_players_buttonR.width &&MousPosx>four_players_buttonR.x &&MousPosy<four_players_buttonR.y+four_players_buttonR.height&&MousPosy>four_players_buttonR.y){
-            number_of_players = 3;
+            number_of_players = 4;
 
+            start_game        = true;
+
+          }
+
+
+          if(MousPosx<two_bot_players_buttonR.x + two_bot_players_buttonR.width &&MousPosx>two_bot_players_buttonR.x &&MousPosy<two_bot_players_buttonR.y+two_bot_players_buttonR.height&&MousPosy>two_bot_players_buttonR.y){
+
+            number_of_players = 2;
+            start_game        = true;
+            players[2].bot =true;
+            players[3].bot =true;
+
+          }
+          if(MousPosx<three_bot_players_buttonR.x + three_bot_players_buttonR.width &&MousPosx>three_bot_players_buttonR.x &&MousPosy<three_bot_players_buttonR.y+three_bot_players_buttonR.height&&MousPosy>three_bot_players_buttonR.y){
+
+            number_of_players = 3;
+            start_game        = true;
+            players[1].bot =true;
+            players[2].bot =true;
+            players[3].bot =true;
+          }
+          if(MousPosx<four_bot_players_buttonR.x + four_bot_players_buttonR.width &&MousPosx>four_bot_players_buttonR.x &&MousPosy<four_bot_players_buttonR.y+four_bot_players_buttonR.height&&MousPosy>four_bot_players_buttonR.y){
+            number_of_players = 4;
+            players[0].bot =true;
+            players[1].bot =true;
+            players[2].bot =true;
+            players[3].bot =true;
             start_game        = true;
 
           }
         }
       }
-    }
 
+}
     //*************************************************************************************************************
 
     //handling time in the game for each player
@@ -1645,7 +1732,7 @@ if(!players[current_player].bot&&players[current_player].canPlay){
 
 
     }
-  
+
     if(start_game){
       if((players[0].canPlay||players[1].canPlay||players[2].canPlay||players[3].canPlay)||(continue_playing)){
         window.clear(BgColor);
@@ -1722,6 +1809,11 @@ if(!players[current_player].bot&&players[current_player].canPlay){
       window.draw(two_players_buttonRS);
       window.draw(three_players_buttonRS);
       window.draw(four_players_buttonRS);
+
+      window.draw(start_game_buttonRS);
+      window.draw(two_bot_players_buttonRS);
+      window.draw(three_bot_players_buttonRS);
+      window.draw(four_bot_players_buttonRS);
       window.display();
 
     }
