@@ -1259,8 +1259,7 @@ int main() {
   int count_rotation    = 0;
   int flip_counter      = 0;
   int change_piece      = 0;
-
-int counterofpieces =0;
+  int change_piece_total_tests=0;
   /********************************************************************************************/
 
   //used to calculate the number of moves the player
@@ -1298,13 +1297,12 @@ int counterofpieces =0;
 
 /**********************************************************************************************************/
     if(players[current_player].canPlay&&players[current_player].bot&&start_game){
-      std::this_thread::sleep_for(std::chrono::milliseconds(200));
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
-      //count_number_of_possible_places[current_player]=0;
 
       bot_do_rotate=false;
 
-      for(int i = 1 ; i < main_board_size-1 ; i++){
+    /*  for(int i = 1 ; i < main_board_size-1 ; i++){
         for(int j = 1 ; j < main_board_size-1 ; j++ ){
           for(int p = 0 ; p<4 ;p++){
 
@@ -1314,7 +1312,7 @@ int counterofpieces =0;
           }
         }
         }
-      }
+      }*/
 
       for( int i = 1 ; i < main_board_size - 1 ; i++){
         for (int j = 1 ; j < main_board_size - 1 ; j++){
@@ -1384,22 +1382,25 @@ int counterofpieces =0;
         players[current_player].Hand[idp[current_player]-1] = to_Tile(players[current_player].Hand[idp[current_player]-1].matrix);
         flipsound.play();
       }
-      if(flip_counter != 0){
 
+      if(flip_counter != 0 ){
         flip_counter                                      = 0;
         change_piece++;
         count_rotation                                    = 0;
-        if(idp[current_player]>1&&players[current_player].Have[idp[current_player]-1] != 0 ){
+        if(idp[current_player]>1 && players[current_player].Have[idp[current_player]-1] != 0 ){
           idp[current_player]--;
         }else{
-          for(int i = 21;i!=idp[current_player]&&i>1;i=i-1){
+
+          for(int i = 21;i > 1 ; i=i-1){
+
             if(players[current_player].Have[i] != 0){
+
               if(i != idp[current_player] ){
                 idp[current_player]                       = i;
                 i                                         = 0;
               }else{
                 for(int j = i;j>1;j--){
-                  if(players[current_player].Have[i] != 0 ){
+                  if(players[current_player].Have[j] != 0 ){
                     idp[current_player]               = j;
                     j                                 = 0;
                   }
@@ -1409,9 +1410,15 @@ int counterofpieces =0;
           }
         }
       }
+change_piece_total_tests=0;
+      for(int i=0 ; i < total_number_of_tiles ;i++){
+        if(players[current_player].Have[i] !=0){
+          change_piece_total_tests++;
+        }
+      }
 
-      if(change_piece>total_number_of_tiles&&!bot_do_rotate){
-
+      if(change_piece>change_piece_total_tests&&!bot_do_rotate){
+        change_piece_total_tests        = 0;
         change_piece                    = 0;
         players[current_player].canPlay = false;
         if(current_player+1<total_number_of_players){
@@ -1443,31 +1450,17 @@ int counterofpieces =0;
 
 /***************************************************************************************************/
 if(!players[current_player].bot&&players[current_player].canPlay){
+  for(int p = 0 ; p < 4; p++ ){
     for(int i = 1;i<23;i++){
       for(int j = 1;j<23;j++){
-        if(is_Valid(players[current_player].Hand[idp[current_player]-1],GameBoard,i+1,j+1,players[current_player].id)){
+        if(is_Valid(players[current_player].Hand[idp[current_player]-1],GameBoard,i+positionx[p],j+positionx[p],players[current_player].id)){
 
-          GameBoard.matrix[i+1][j+1] = 5;
-          GameBoard                  = to_Board(GameBoard.matrix);
-
-        }if(is_Valid(players[current_player].Hand[idp[current_player]-1],GameBoard,i-1,j+1,players[current_player].id)){
-
-          GameBoard.matrix[i-1][j+1] = 5;
-          GameBoard                  = to_Board(GameBoard.matrix);
-
-        }if(is_Valid(players[current_player].Hand[idp[current_player]-1],GameBoard,i+1,j-1,players[current_player].id)){
-
-          GameBoard.matrix[i+1][j-1] = 5;
-          GameBoard                  = to_Board(GameBoard.matrix);
-
-        }if(is_Valid(players[current_player].Hand[idp[current_player]-1],GameBoard,i-1,j-1,players[current_player].id)){
-
-          GameBoard.matrix[i-1][j-1] = 5;
+          GameBoard.matrix[i+positionx[p]][j+positionx[p]] = 5;
           GameBoard                  = to_Board(GameBoard.matrix);
 
         }
-
       }
+     }
     }
 }
 /*****************************************************************************************************************/
@@ -1734,7 +1727,7 @@ if(!players[current_player].bot&&players[current_player].canPlay){
     }
 
     if(start_game){
-      if((players[0].canPlay||players[1].canPlay||players[2].canPlay||players[3].canPlay)||(continue_playing)){
+      if((players[0].canPlay||players[1].canPlay||players[2].canPlay||players[3].canPlay)&&(continue_playing)){
         window.clear(BgColor);
         window.draw(map);
         window.draw(HeaderS);
@@ -1766,6 +1759,7 @@ if(!players[current_player].bot&&players[current_player].canPlay){
         window.display();
 
       }else{
+
         window.clear(BgColor);
 
         window.draw(background_texture);

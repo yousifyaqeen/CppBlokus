@@ -11,7 +11,7 @@
 # done
 - [x] delete background
 - [x] piece with mouse
-- [x] make color to place tiles
+- [x] add color to mouse tiles
 - [x] ability to rotate
 - [x] each piece has its own id
 - [x] structure player
