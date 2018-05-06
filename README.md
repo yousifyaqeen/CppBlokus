@@ -1,4 +1,5 @@
-# CppBlokus ![alt text](https://raw.githubusercontent.com/yousifyaqeen/CppBlokus/master/logo.png)
+# CppBlokus 
+![alt text](https://raw.githubusercontent.com/yousifyaqeen/CppBlokus/master/logo.png)
 Projet d'initiation à l'ingénierie logicielle CMI Informatique L1
 
 ### for more info see the [wiki](https://github.com/yousifyaqeen/CppBlokus/wiki)
