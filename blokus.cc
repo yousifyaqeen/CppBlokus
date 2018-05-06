@@ -1063,7 +1063,7 @@ int main() {
 
   sf::Texture t_four_player;
 
-  if (!t_four_player.loadFromFile("4players.png"))
+  if (!t_four_player.loadFromFile("res/4players.png"))
   {
     cout << "cant load the Texture file associated to 4 player button  : res/4player.png";
   }
