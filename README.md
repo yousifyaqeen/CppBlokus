@@ -15,6 +15,10 @@ g++ -Wall -g -O2 -std=c++11 -Wno-deprecated-declarations -lsfml-system -lsfml-wi
 ./blokus
 
 ```
+## to run on windows 
+
+download build.7z from the release folder 
+
 ## to compile on windows you will need :
 * this exact version of [MinGW Builds 6.1.0 (64-bit)]( https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win64/Personal%20Builds/mingw-builds/6.1.0/threads-posix/seh/x86_64-6.1.0-release-posix-seh-rt_v5-rev0.7z/download)
 
