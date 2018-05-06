@@ -6,9 +6,9 @@ Projet d'initiation à l'ingénierie logicielle CMI Informatique L1
 ### for more info see the [wiki](https://github.com/yousifyaqeen/CppBlokus/wiki)
 
 
-![alt text](pictures/mainmenu.png)
-![alt text](pictures/gameplay.png)
-![alt text](pictures/gameoverscreen.png)
+![mainmenue](pictures/mainmenu.PNG)
+![gameplay](pictures/gameplay.PNG)
+![gameoverscreen](pictures/gameoverscreen.PNG)
 
 ## to compile on linux you will need :
 * [clang](https://clang.llvm.org/) a c++ compiler
