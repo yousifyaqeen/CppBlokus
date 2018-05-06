@@ -1,7 +1,7 @@
 # CppBlokus
 Projet d'initiation à l'ingénierie logicielle CMI Informatique L1
 
-## for more info see the [wiki] (https://github.com/yousifyaqeen/CppBlokus/wiki)
+### for more info see the [wiki](https://github.com/yousifyaqeen/CppBlokus/wiki)
 
 ## to compile on linux you will need :
 * [clang](https://clang.llvm.org/) a c++ compiler
