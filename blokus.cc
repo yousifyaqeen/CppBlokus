@@ -1063,9 +1063,9 @@ int main() {
 
   sf::Texture t_four_player;
 
-  if (!t_four_player.loadFromFile("res/4players.png"))
+  if (!t_four_player.loadFromFile("res/3p1bs.png"))
   {
-    cout << "cant load the Texture file associated to 4 player button  : res/4player.png";
+    cout << "cant load the Texture file associated to 4 player button  : res/3p1bs.png";
   }
 
 
@@ -1334,7 +1334,6 @@ int main() {
       chrono[current_player].resume();
 
       current_search_number=0;
-      std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
       bot_do_rotate=false;
      for(int i = 1 ; i < main_board_size-1 ; i++){
@@ -1656,9 +1655,10 @@ if(!players[current_player].bot&&players[current_player].canPlay){
             players[3].canPlay =false;
           }
           if(MousPosx<four_players_buttonR.x + four_players_buttonR.width &&MousPosx>four_players_buttonR.x &&MousPosy<four_players_buttonR.y+four_players_buttonR.height&&MousPosy>four_players_buttonR.y){
-            number_of_players = 4;
-
+            number_of_players = 3;
             start_game        = true;
+            players[3].bot =true;
+
 
           }
 
