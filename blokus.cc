@@ -645,6 +645,7 @@ player set_Player(int id,sf::Color color,int time,tile tiles[]){
   tmp.pboard   =set_Player_Hand(tilesTableWithCenter);
   tmp.canPlay  =true;
   tmp.bot      =false;
+  tmp.showHelp = false;
   return tmp;
 }
 
@@ -709,7 +710,7 @@ int main() {
 
   }
 
-  sf::Text title("Blokus", font, 50);
+  sf::Text title("CppBlokus", font, 50);
   title.setPosition(Vector2f(((window_width/2 - title.getLocalBounds().width/2)),0.0));
 
   RenderWindow window(VideoMode(window_width, window_height), title.getString());
@@ -804,37 +805,13 @@ int main() {
   FooterS.setPosition(Footer.x,Footer.y);
   FooterS.setFillColor(Footer.color);
 
-  /**********************************************************************************/
-
-
-  Rectangle rotate_Clock_WiseR;
-
-  rotate_Clock_WiseR.width  = window_height*0.1;
-  rotate_Clock_WiseR.height = window_height*0.1;
-  rotate_Clock_WiseR.x      = Footer.x+Footer.width/2+Footer.width/4-rotate_Clock_WiseR.width/2;
-  rotate_Clock_WiseR.y      = Footer.y+Footer.height/2-rotate_Clock_WiseR.height/2;;
-
-
-  sf::Texture rotate_Clock_WiseRTexture;
-
-  if (!rotate_Clock_WiseRTexture.loadFromFile("res/CWrotate.png"))
-  {
-    cout << "cant load the Texture file associated to rotate_Clock_Wise button : res/CWrotate.png";
-  }
-
-
-  RectangleShape rotate_Clock_WiseRS;
-
-  rotate_Clock_WiseRS.setSize(Vector2f(rotate_Clock_WiseR.width,rotate_Clock_WiseR.height));
-  rotate_Clock_WiseRS.setPosition(rotate_Clock_WiseR.x,rotate_Clock_WiseR.y);
-  rotate_Clock_WiseRS.setTexture(&rotate_Clock_WiseRTexture);
 
   /********************************************************************************************/
 
   Rectangle skip_turn_buttonR;
 
   skip_turn_buttonR.width   = 130;
-  skip_turn_buttonR.height  = 45;
+  skip_turn_buttonR.height  = 50;
   skip_turn_buttonR.x       = Footer.x+Footer.width/2-skip_turn_buttonR.width/2;
   skip_turn_buttonR.y       = main_board_position_y-skip_turn_buttonR.height-skip_turn_buttonR.height/10;
 
@@ -855,8 +832,8 @@ int main() {
 
   Rectangle flip_tile_buttonR;
 
-  flip_tile_buttonR.width  = window_width*0.1;
-  flip_tile_buttonR.height = window_height*0.1;
+  flip_tile_buttonR.width  = 120;
+  flip_tile_buttonR.height = 45;
   flip_tile_buttonR.x      = Footer.x+Footer.width/2-flip_tile_buttonR.width/2;
   flip_tile_buttonR.y      = Footer.y+(Footer.height/2)-flip_tile_buttonR.height/2;
 
@@ -879,9 +856,9 @@ int main() {
 
   Rectangle rotate_Counter_Clock_WiseR;
 
-  rotate_Counter_Clock_WiseR.width  = window_width*0.1;
-  rotate_Counter_Clock_WiseR.height = window_height*0.1;
-  rotate_Counter_Clock_WiseR.x      = Footer.x+Footer.width/4-rotate_Counter_Clock_WiseR.width/2;
+  rotate_Counter_Clock_WiseR.width  = 60;
+  rotate_Counter_Clock_WiseR.height = 60;
+  rotate_Counter_Clock_WiseR.x      = Footer.x+Footer.width/2- Footer.width/4-rotate_Counter_Clock_WiseR.width/2;
   rotate_Counter_Clock_WiseR.y      = Footer.y+Footer.height/2-rotate_Counter_Clock_WiseR.height/2;;
 
 
@@ -894,10 +871,34 @@ int main() {
 
 
   RectangleShape rotate_Counter_Clock_WiseRS;
-  rotate_Counter_Clock_WiseRS.setSize(Vector2f(rotate_Clock_WiseR.width,rotate_Counter_Clock_WiseR.height));
+  rotate_Counter_Clock_WiseRS.setSize(Vector2f(rotate_Counter_Clock_WiseR.width,rotate_Counter_Clock_WiseR.height));
   rotate_Counter_Clock_WiseRS.setPosition(rotate_Counter_Clock_WiseR.x,rotate_Counter_Clock_WiseR.y);
   rotate_Counter_Clock_WiseRS.setTexture(&rotate_Counter_Clock_WiseRTexture);
 
+  /**********************************************************************************/
+
+
+  Rectangle rotate_Clock_WiseR;
+
+  rotate_Clock_WiseR.width  = 60;
+  rotate_Clock_WiseR.height = 60;
+  rotate_Clock_WiseR.x      = Footer.x+Footer.width/2+Footer.width/4 -rotate_Clock_WiseR.width/2;
+  rotate_Clock_WiseR.y      = Footer.y+Footer.height/2-rotate_Clock_WiseR.height/2;;
+
+
+  sf::Texture rotate_Clock_WiseRTexture;
+
+  if (!rotate_Clock_WiseRTexture.loadFromFile("res/CWrotate.png"))
+  {
+    cout << "cant load the Texture file associated to rotate_Clock_Wise button : res/CWrotate.png";
+  }
+
+
+  RectangleShape rotate_Clock_WiseRS;
+
+  rotate_Clock_WiseRS.setSize(Vector2f(rotate_Clock_WiseR.width,rotate_Clock_WiseR.height));
+  rotate_Clock_WiseRS.setPosition(rotate_Clock_WiseR.x,rotate_Clock_WiseR.y);
+  rotate_Clock_WiseRS.setTexture(&rotate_Clock_WiseRTexture);
 
   /********************************************************************************************/
 
@@ -1115,6 +1116,35 @@ int main() {
 
   }
 
+  /*********************************************************************************************/
+  sf::Texture T_helpoff;
+  if (!T_helpoff.loadFromFile("res/helpoff.png"))
+  {
+    cout << "cant load the Texture file associated to 2 player button  : res/2player.png";
+  }
+
+  sf::Texture T_helpon;
+  if (!T_helpon.loadFromFile("res/helpon.png"))
+  {
+    cout << "cant load the Texture file associated to 2 player button  : res/2player.png";
+  }
+
+
+  RectangleShape playerHelpRS[4];
+
+  Rectangle playerHelp[4];
+  for(int i = 0 ; i < 4; i++){
+  playerHelp[i].width    = 32;
+  playerHelp[i].height   = 32;
+  playerHelp[i].x        = pAreas[i].x+pAreas[i].width - playerHelp[i].width;
+  playerHelp[i].y        = pAreas[i].y ;
+
+
+
+  playerHelpRS[i].setSize(Vector2f(playerHelp[i].width,playerHelp[i].height));
+  playerHelpRS[i].setPosition(playerHelp[i].x,playerHelp[i].y);
+  playerHelpRS[i].setTexture(&T_helpoff);
+}
   /********************************************************************************************/
 
   sf::Text player_score_display[4];
@@ -1330,6 +1360,7 @@ int main() {
 
 /**********************************************************************************************************/
     if(players[current_player].canPlay&&players[current_player].bot&&start_game){
+      std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
       chrono[current_player].resume();
 
@@ -1483,12 +1514,11 @@ change_piece_total_tests=0;
     }
 
 /***************************************************************************************************/
-if(!players[current_player].bot&&players[current_player].canPlay){
+if(!players[current_player].bot&&players[current_player].canPlay&&players[current_player].showHelp){
   for(int p = 0 ; p < 4; p++ ){
     for(int i = 1;i<23;i++){
       for(int j = 1;j<23;j++){
         if(is_Valid(players[current_player].Hand[idp[current_player]-1],GameBoard,i+positionx[p],j+positionx[p],players[current_player].id)){
-
           GameBoard.matrix[i+positionx[p]][j+positionx[p]] = 5;
           GameBoard                  = to_Board(GameBoard.matrix);
 
@@ -1521,7 +1551,7 @@ if(!players[current_player].bot&&players[current_player].canPlay){
 
 
 
-      if (event.type == sf::Event::MouseButtonPressed&&players[current_player].canPlay&&start_game&&!players[current_player].bot) {
+      if (event.type == sf::Event::MouseButtonPressed &&players[current_player].canPlay&&start_game&&!players[current_player].bot) {
         chrono[current_player].resume();
 
         for(int i = 1 ; i< main_board_size-1 ; i++){
@@ -1593,7 +1623,18 @@ if(!players[current_player].bot&&players[current_player].canPlay){
           rotatesound.play();
 
         }
+        if(MousPosx<playerHelp[current_player].x + playerHelp[current_player].width &&MousPosx>playerHelp[current_player].x &&MousPosy<playerHelp[current_player].y+playerHelp[current_player].height&&MousPosy>playerHelp[current_player].y){
 
+          if(!players[current_player].showHelp){
+            players[current_player].showHelp = true;
+            playerHelpRS[current_player].setTexture(&T_helpon);
+
+          }else{
+            players[current_player].showHelp = false;
+            playerHelpRS[current_player].setTexture(&T_helpoff);
+
+          }
+        }
         if(MousPosx<rotate_Counter_Clock_WiseR.x + rotate_Counter_Clock_WiseR.width &&MousPosx>rotate_Counter_Clock_WiseR.x &&MousPosy<rotate_Counter_Clock_WiseR.y+rotate_Counter_Clock_WiseR.height&&MousPosy>rotate_Counter_Clock_WiseR.y){
 
           players[current_player].Hand[idp[current_player]-1] = rotate_Counter_Clock_Wise(players[current_player].Hand[idp[current_player]-1]);
@@ -1695,9 +1736,6 @@ if(!players[current_player].bot&&players[current_player].canPlay){
 
         int MousPosx = (int)  sf::Mouse::getPosition(window).x;
         int MousPosy = (int)  sf::Mouse::getPosition(window).y;
-        for(int i=0; i<4 ; i++)
-      {        chrono[i].pause();
-      }
 
         if (event.type == sf::Event::MouseButtonPressed) {
 
@@ -1712,6 +1750,12 @@ if(!players[current_player].bot&&players[current_player].canPlay){
 
 
 }
+
+
+
+
+
+
     //*************************************************************************************************************
 
     //handling time in the game for each player
@@ -1802,6 +1846,7 @@ if(!players[current_player].bot&&players[current_player].canPlay){
           window.draw(player_score_display[i]);
           window.draw(player_clock_display[i]);
           window.draw(contain[i]);
+          window.draw(playerHelpRS[i]);
         }
         if(!players[current_player].bot&&players[current_player].canPlay){
         if(sf::Mouse::getPosition(window).x >main_board_position_x&&sf::Mouse::getPosition(window).x <main_board_position_x+main_board_width&&sf::Mouse::getPosition(window).y >main_board_position_y&&sf::Mouse::getPosition(window).y <main_board_position_y+main_board_height){
