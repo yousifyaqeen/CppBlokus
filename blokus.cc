@@ -1,28 +1,29 @@
 /*  MIT License
 
-    Copyright (c) 2018 ibnbattuta
+Copyright (c) 2018 ibnbattuta
 
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files (the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions:
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-    The above copyright notice and this permission notice shall be included in all
-    copies or substantial portions of the Software.
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-    SOFTWARE.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+
+Visit CppBlokus GitHub page https://github.com/yousifyaqeen/CppBlokus <<<<<<
 
 */
-
-/* Visit CppBlokus GitHub page https://github.com/yousifyaqeen/CppBlokus  */
 
 #include <random>
 #include <SFML/Graphics.hpp>
@@ -747,8 +748,8 @@ int main() {
     cout << "cant load the font file  : res/RobotoMono-Regular.ttf";
 
   }
-//idp is used to define which tile the player is curently using
-//everything related to tile selecttion is controled by this variable
+  //idp is used to define which tile the player is curently using
+  //everything related to tile selecttion is controled by this variable
   int idp[4];
 
   for(int i=0;i<4;i++){
@@ -775,26 +776,26 @@ int main() {
   pAreas[0].width  = main_board_position_x-(2*out_line_size);
   pAreas[0].height = window_height/2-out_line_size;
   pAreas[0].color  = Color(250, 177, 160,255);
-//blue
+  //blue
   pAreas[1].x      = out_line_size;
   pAreas[1].y      = window_height/2 +(2*out_line_size);
   pAreas[1].width  = main_board_position_x-(2*out_line_size);
   pAreas[1].height = window_height/2-3*out_line_size;
   pAreas[1].color  = Color(116, 185, 255,255);
-//green
+  //green
   pAreas[2].x      = main_board_position_x + ( main_board_size* main_board_tile_width)+out_line_size ;
   pAreas[2].y      = out_line_size;
   pAreas[2].width  = main_board_position_x-(2*out_line_size);
   pAreas[2].height = window_height/2-out_line_size;
   pAreas[2].color  = Color(85, 239, 196,255);
-//yellow
+  //yellow
   pAreas[3].x      = main_board_position_x + ( main_board_size* main_board_tile_width)+out_line_size;
   pAreas[3].y      = window_height/2+(2*out_line_size);
   pAreas[3].width  = main_board_position_x-(2*out_line_size);
   pAreas[3].height = window_height/2-3*out_line_size;//multiply by 3 because of the middle outline
   pAreas[3].color  = Color(255, 234, 167,255);
 
-/*translating the information to  a rectangleShape*/
+  /*translating the information to  a rectangleShape*/
   RectangleShape pAreasShape[4];
 
   for(int i=0 ; i <4;i++){
@@ -805,7 +806,7 @@ int main() {
   }
 
   /**********************************************************************************/
-/*definning the area to display the pieces avalible to the player*/
+  /*definning the area to display the pieces avalible to the player*/
   for(int i = 0 ; i < 4; i++){
     players[i].pos.x = pAreas[i].x + pAreas[i].width/2-( player_board_tile_width* player_board_matrix_height)/2;
     players[i].pos.y = pAreas[i].y + pAreas[i].height - player_board_tile_height* player_board_tile_height -overflowcorrect;
@@ -813,8 +814,8 @@ int main() {
   }
 
   /**********************************************************************************/
-/*header area(the area above the board)*/
-/*defined to make placing objects in this area easier*/
+  /*header area(the area above the board)*/
+  /*defined to make placing objects in this area easier*/
   Rectangle Header;
 
   Header.x      = main_board_position_x+out_line_size;
@@ -1232,7 +1233,7 @@ int main() {
 
   /********************************************************************************************/
 
-/* showing game over text on game over screen */
+  /* showing game over text on game over screen */
   sf::Text GameOverText;
 
   GameOverText.setFont(font);
@@ -1274,7 +1275,7 @@ int main() {
   }
 
   /********************************************************************************************/
-/* background */
+  /* background */
 
   sf::Texture T_background_texture;
 
@@ -1319,30 +1320,30 @@ int main() {
   /********************************************************************************************/
   /* used to get back to the main menu */
 
-    Rectangle go_to_mainmenuR;
+  Rectangle go_to_mainmenuR;
 
-    go_to_mainmenuR.width   = 162;
-    go_to_mainmenuR.height  = 60;
-    go_to_mainmenuR.x       =  window_width/4 + window_width/2 - go_to_mainmenuR.width/2;
-    go_to_mainmenuR.y       = GameOverText.getLocalBounds().left + 10;;
+  go_to_mainmenuR.width   = 162;
+  go_to_mainmenuR.height  = 60;
+  go_to_mainmenuR.x       =  window_width/4 + window_width/2 - go_to_mainmenuR.width/2;
+  go_to_mainmenuR.y       = GameOverText.getLocalBounds().left + 10;;
 
-    sf::Texture T_show_mainmenu;
+  sf::Texture T_show_mainmenu;
 
-    if (!T_show_mainmenu.loadFromFile("res/mainmenu.png"))
-    {
-      cout << "cant load the Texture file associated to  mainmenu   : res/mainmenu.png";
-    }
+  if (!T_show_mainmenu.loadFromFile("res/mainmenu.png"))
+  {
+    cout << "cant load the Texture file associated to  mainmenu   : res/mainmenu.png";
+  }
 
-    RectangleShape go_to_mainmenuRS;
+  RectangleShape go_to_mainmenuRS;
 
-    go_to_mainmenuRS.setSize(Vector2f(go_to_mainmenuR.width,go_to_mainmenuR.height));
-    go_to_mainmenuRS.setPosition(go_to_mainmenuR.x,go_to_mainmenuR.y);
-    go_to_mainmenuRS.setTexture(&T_show_mainmenu);
+  go_to_mainmenuRS.setSize(Vector2f(go_to_mainmenuR.width,go_to_mainmenuR.height));
+  go_to_mainmenuRS.setPosition(go_to_mainmenuR.x,go_to_mainmenuR.y);
+  go_to_mainmenuRS.setTexture(&T_show_mainmenu);
 
 
 
   /***************************************************************************/
-/* loading sounds */
+  /* loading sounds */
   SoundBuffer placebuffer;
   if(!placebuffer.loadFromFile("res/place.wav"))
   {
@@ -1427,8 +1428,8 @@ int main() {
     window_width  = window.getSize().x;
     window_height = window.getSize().y;
 
-/* making players turn more visible */
-/* set white lines with red lines */
+    /* making players turn more visible */
+    /* set white lines with red lines */
     for(int i = 0 ; i < 4 ; i++){
       if( i == current_player &&players[current_player].canPlay){
         pAreasShape[i].setOutlineColor(sf::Color::Red);
@@ -1440,7 +1441,7 @@ int main() {
       }
     }
 
-/* initialising avalable places to bot to 0 each time we change player */
+    /* initialising avalable places to bot to 0 each time we change player */
     for ( int i =0; i<15;i++){
       oktoPlacex[i] = 0;
       oktoPlacey[i] = 0;

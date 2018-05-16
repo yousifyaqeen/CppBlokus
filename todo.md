@@ -1,20 +1,20 @@
 # todo
-- [ ] adding new textures
-- ~~[ ] add a splashscreen~~
-- [ ] colors
-- [ ] add a better algorithm for bot player
-- [ ] player four not checking all the pieces
-- [ ] change the sounds
-- [ ] check the scoring system
+- [ ] each time the game starts a bot player doesn't check all the pieces
+
 
 # v2.0
 - [ ] separate the main file into smaller classes
-- [ ] put  buttons in an array for smaller code
-
+- [ ] put buttons in an array for smaller code
+- [ ] add keyboard control
+- [ ] add a better algorithm for bot player
+- [ ] add a splash screen
+- [ ] change the sounds
 
 
 # done
-- [ ] bots place pieces randomly
+- [x] player four not checking all the pieces
+- [x] adding new textures
+- [x] bots place pieces randomly
 - [x] delete background
 - [x] piece with mouse
 - [x] add color to mouse tiles
@@ -35,3 +35,4 @@
 - [x] add an algorithm to play with other players
 - [x] add a main menu
 - [x] player pas assez visible en blanc sur jaune
+- [x] check the scoring system(checked not working)
