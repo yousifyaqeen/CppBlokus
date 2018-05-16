@@ -1,3 +1,28 @@
+/*  MIT License
+
+    Copyright (c) 2018 ibnbattuta
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+
+*/
+
+/* Visit CppBlokus GitHub page https://github.com/yousifyaqeen/CppBlokus  */
 
 #include <random>
 #include <SFML/Graphics.hpp>
@@ -131,7 +156,7 @@ int iniMap[] =
   2, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 4,
 
 };
-//definning the tile array see the full table in tiles.map
+//definning the tile array see the full matrix table in tiles.map
 int t1[]={0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,};
 
 int t2[]={0,0,0,0,0,0,0,0,0,0,0,0,2,1,0,0,0,0,0,0,0,0,0,0,0,};
@@ -175,20 +200,66 @@ int t20[]={0,0,0,0,0,0,0,1,0,0,0,1,2,1,0,0,0,1,0,0,0,0,0,0,0,};
 int t21[]={0,0,0,0,0,0,0,1,0,0,0,1,2,1,1,0,0,0,0,0,0,0,0,0,0,};
 
 
-struct Board{
+class Board{
+public:
   //definning the board to be refrenced after and modified
   int table[main_board_size*main_board_size];
   int matrix[main_board_size][main_board_size];
 
+  //**************************************************************
+
+
+  static  Board to_Board(int input[]){
+    //a function to create a matrix from the map
+    static Board tmp;
+    int n=0;
+    for(int i=0;i<main_board_size;i++){
+      for(int j=0;j<main_board_size;j++){
+        tmp.matrix[i][j]=input[n];
+        n++;
+      }
+    }
+    n=0;
+    for(int i=0;i<main_board_size;i++){
+      for(int j=0;j<main_board_size;j++){
+        tmp.table[n]= tmp.matrix[i][j];
+        n++;
+
+      }
+    }
+
+
+    return tmp;
+  }
+
+
+
+  //**************************************************************
+
+
+  static Board to_Board(int input[main_board_size][main_board_size]){
+    //a function to create a table from the map matrix
+    Board tmp;
+    int n=0;
+    for(int i=0;i<main_board_size;i++){
+      for(int j=0;j<main_board_size;j++){
+        tmp.table[n]= input[i][j];
+        n++;
+
+      }
+    }
+
+    n=0;
+    for(int i=0;i<main_board_size;i++){
+      for(int j=0;j<main_board_size;j++){
+        tmp.matrix[i][j]=tmp.table[n];
+        n++;
+      }
+    }
+    return tmp;
+  }
+
 };
-
-
-struct playerHand{
-  //definning the board to be refrenced after and modified
-  int table[ player_board_matrix_width* player_board_matrix_height];
-  int matrix[ player_board_matrix_width][ player_board_matrix_height];
-};
-
 
 class TileMap : public sf::Drawable, public sf::Transformable
 {
@@ -258,14 +329,129 @@ private:
 
 struct Position{
   int x;
-int y;
+  int y;
 };
-struct tile{
+
+class tile{
+
+public:
   //definning the tile to be refrenced after and modified
   int id;//each tile has its unique id
   int table[tile_matrix_size*tile_matrix_size];//the tile as a 1 dimension array
   int matrix[tile_matrix_size][tile_matrix_size];//the tile as a 2 dimension array
   int size;//the tile size (0< && >6)
+
+
+  static tile to_Tile(int input[]){
+    //a function to create a matrix from a tile table
+    tile tmp;
+    int n=0;
+    for(int i=0;i<tile_matrix_size;i++){
+      for(int j=0;j<tile_matrix_size;j++){
+        tmp.matrix[i][j]=input[n];
+        n++;
+      }
+    }
+    n=0;
+    for(int i=0;i<tile_matrix_size*tile_matrix_size;i++){
+      tmp.table[n]= input[i];
+      n++;
+    }
+    return tmp;
+  }
+
+  static tile to_Tile(int input[tile_matrix_size][tile_matrix_size]){
+    //a function to create a table from the tile matrix
+    tile tmp;
+    int n=0;
+    for(int i=0;i<tile_matrix_size;i++){
+      for(int j=0;j<tile_matrix_size;j++){
+        tmp.table[n]= input[i][j];
+        n++;
+      }
+    }
+    n=0;
+    for(int i=0;i<tile_matrix_size;i++){
+      for(int j=0;j<tile_matrix_size;j++){
+        tmp.matrix[i][j]=tmp.table[n];
+        n++;
+      }
+    }
+
+    return tmp;
+  };
+
+
+
+  static tile rotate_Clock_Wise(tile input){
+    //an algorithme to rotate a matrix clockwise
+    //can only be used for a matrix of size 5*5
+    //returns a tile
+    for(int r = 0; r < tile_matrix_size; r++) {
+      for(int c = r; c < tile_matrix_size; c++) {
+        int tmp=input.matrix[r][c];
+        input.matrix[r][c]=input.matrix[c][r];
+        input.matrix[c][r]=tmp;
+      }
+    }
+    for(int r = 0; r < tile_matrix_size; r++) {
+      for(int c =0; c < tile_matrix_size/2; c++) {
+        int tmp=input.matrix[r][c];
+        input.matrix[r][c]=input.matrix[r][5-c-1];
+        input.matrix[r][5-c-1]=tmp;
+      }
+    }
+    return input;
+  }
+
+
+  static tile rotate_Counter_Clock_Wise(tile input)
+  {
+    for (int x = 0; x < tile_matrix_size / 2; x++)
+    {
+
+      for (int y = x; y < tile_matrix_size-x-1; y++)
+      {
+        int temp =  input.matrix[x][y];
+
+        input.matrix[x][y] = input.matrix[y][tile_matrix_size-1-x];
+
+        input.matrix[y][tile_matrix_size-1-x] =  input.matrix[tile_matrix_size-1-x][tile_matrix_size-1-y];
+
+        input.matrix[tile_matrix_size-1-x][tile_matrix_size-1-y] =  input.matrix[tile_matrix_size-1-y][x];
+
+        input.matrix[tile_matrix_size-1-y][x] = temp;
+      }
+    }
+
+    return input;
+  }
+
+  static tile flip_Matrix(tile input){
+
+
+    for(int i=0;i<5;i++){
+      int tmp;
+      tmp                =input.matrix[i][0];
+      input.matrix[i][0] =input.matrix[i][4];
+      input.matrix[i][4] =tmp;
+      tmp                = input.matrix[i][1];
+      input.matrix[i][1] =input.matrix[i][3];
+      input.matrix[i][3] =tmp;
+    }
+    return input= tile::to_Tile(input.matrix);
+  }
+
+
+  static tile set_Tile(int id,int input[],int size){
+    tile tmp;
+    tmp = tile::tile::to_Tile(input);
+    tmp.id=id;
+    tmp.size=size;
+    return tmp;
+  }
+
+
 };
 
 
@@ -288,9 +474,22 @@ struct Rectangle {
 
 };
 //****************************************
-struct player{
-  int        id;
-  Color      color;
+
+
+
+struct playerHand{
+  //definning the board to be refrenced after and modified
+  int table[ player_board_matrix_width* player_board_matrix_height];
+  int matrix[ player_board_matrix_width][ player_board_matrix_height];
+};
+
+
+
+class player{
+  //definning player
+public:
+  int        id; //each player has a unique id
+  Color      color; // four possible colors
   int        score;
   countTime  Time;
   TileMap    FullHand;
@@ -304,365 +503,205 @@ struct player{
   bool       bot; // is the plyer a bot?
   bool       showHelp;//add help button
 
+
+
+
+  static player set_Player(int id,sf::Color color,int time,tile tiles[]){
+    // a class to set the player
+    player tmp;
+    tmp.id       =id;
+    tmp.color    = color;
+    tmp.score    =0;
+    tmp.Time.min =0;
+    tmp.Time.sec =0;
+
+    for(int i=0;i<total_number_of_tiles;i++){
+
+      tmp.Have[i]=1;
+
+    }
+
+    for(int i=0;i<total_number_of_tiles;i++){
+
+      tmp.Hand[i]=tile::tile::set_Tile(tiles[i].id,tiles[i].table,tiles[i].size);
+
+    }
+
+    tmp.pboard   =set_Player_Hand(tilesTableWithCenter);
+    tmp.canPlay  =true;
+    tmp.bot      =false;
+    tmp.showHelp = false;
+    return tmp;
+  }
+
+
+  static playerHand set_Player_Hand(int input[12*23]){
+    //a function to create a table from the map matrix
+    playerHand tmp;
+    int n=0;
+    for(int i=0;i<12*23;i++){
+      tmp.table[i]= input[i];
+    }
+    for(int i=0;i<12;i++){
+      for(int j=0;j<23;j++){
+        tmp.matrix[i][j]=tmp.table[n];
+        n++;
+      }
+    }
+    return tmp;
+  }
+
+  static playerHand set_Player_Hand(int input[12][23]){
+    //a function to create a table from the map matrix
+    playerHand tmp;
+    int n=0;
+    for(int i=0;i<12;i++){
+      for(int j=0;j<23;j++){
+        tmp.matrix[i][j]=input[i][j];
+      }
+    }
+    for(int i=0;i<12;i++){
+      for(int j=0;j<23;j++){
+        tmp.table[n]= tmp.matrix[i][j];
+        n++;
+      }
+    }
+    n=0;
+
+    return tmp;
+  }
+
+
+
 };
 
-//****************************************
+class GamePlay{
+public:
+  static int is_Equal(int input[main_board_size][main_board_size],int x,int y,int color){
+    return input[x][y]==color;
+  }
 
 
+  static int is_Equal(int input[tile_matrix_size][tile_matrix_size],int x,int y,int color){
+    return input[x][y]==color;
+  }
 
+  //**************************************************************
 
-
-tile rotate_Clock_Wise(tile input){
-  //an algorithme to rotate a matrix clockwise
-  //can only be used for a matrix of size 5*5
-  //returns a tile
-  for(int r = 0; r < tile_matrix_size; r++) {
-    for(int c = r; c < tile_matrix_size; c++) {
-      int tmp=input.matrix[r][c];
-      input.matrix[r][c]=input.matrix[c][r];
-      input.matrix[c][r]=tmp;
+  static int is_Valid(tile check,Board lvl,int x,int y,int color){
+    //check if a tile placement location is empty (0)
+    //return true or false depending on the condition
+    int center =2;
+    int tmp[main_board_size][main_board_size];
+    int n = 0;
+    int col[check.size];
+    int row[check.size];
+    for(int i=0 ; i<tile_matrix_size ; i++){
+      for(int j=0; j<tile_matrix_size;j++){
+        if(check.matrix[i][j]!=0){
+          col[n]=i-center;
+          row[n]=j-center;
+          n++;
+        }
+      }
     }
-  }
-  for(int r = 0; r < tile_matrix_size; r++) {
-    for(int c =0; c < tile_matrix_size/2; c++) {
-      int tmp=input.matrix[r][c];
-      input.matrix[r][c]=input.matrix[r][5-c-1];
-      input.matrix[r][5-c-1]=tmp;
+
+    bool corner=0;
+
+    for(int i=0;i<check.size;i++){
+      for(int j=0;j<main_board_size;j++){
+        for(int m=0;m<main_board_size;m++){
+          tmp[j][m]=lvl.matrix[j][m];
+        }
+      }
+      //check sides
+      if(!is_Equal(tmp,x+col[i],y+row[i],5 )&& !is_Equal(tmp,x+col[i],y+row[i],0 )){
+        return 0;
+
+      }
+      bool s1 = is_Equal(tmp,1+x+col[i],y+row[i],color);
+
+      bool s2 = is_Equal(tmp,x+col[i],1+y+row[i],color);
+
+      bool s3 = is_Equal(tmp,x+col[i]-1,y+row[i],color);
+
+      bool s4 = is_Equal(tmp,x+col[i],y+row[i]-1,color);
+
+
+      if(s1||s2||s3||s4){
+        return 0;
+      }
+
+      //check corners
+      bool  c1 = is_Equal(tmp,1+x+col[i],1+y+row[i],color);
+      bool  c2 = is_Equal(tmp,x+col[i]-1,1+y+row[i],color);
+      bool  c3 = is_Equal(tmp,x+col[i]+1,y+row[i]-1,color);
+      bool  c4 = is_Equal(tmp,x+col[i]-1,y+row[i]-1,color);
+
+      if(c1||c2||c3||c4){
+        corner =1;
+      }
     }
-  }
-  return input;
-}
-//**************************************************************
-tile rotate_Counter_Clock_Wise(tile input)
-{
-  for (int x = 0; x < tile_matrix_size / 2; x++)
-  {
 
-    for (int y = x; y < tile_matrix_size-x-1; y++)
-    {
-      int temp =  input.matrix[x][y];
+    if(corner==1){
+      return 1;
 
-      input.matrix[x][y] = input.matrix[y][tile_matrix_size-1-x];
-
-      input.matrix[y][tile_matrix_size-1-x] =  input.matrix[tile_matrix_size-1-x][tile_matrix_size-1-y];
-
-      input.matrix[tile_matrix_size-1-x][tile_matrix_size-1-y] =  input.matrix[tile_matrix_size-1-y][x];
-
-      input.matrix[tile_matrix_size-1-y][x] = temp;
     }
+
+    return 0;
   }
 
-  return input;
-}
-
-//*************************************************************
-tile to_Tile(int input[]){
-  //a function to create a matrix from a tile table
-  tile tmp;
-  int n=0;
-  for(int i=0;i<tile_matrix_size;i++){
-    for(int j=0;j<tile_matrix_size;j++){
-      tmp.matrix[i][j]=input[n];
-      n++;
+  static playerHand is_Valid(playerHand input,playerHand pboard,int x, int y,int size,int id){
+    //check if where the player clicks the tile is not already used
+    int col[size];
+    int row[size];
+    int n=0;
+    for(int i=0 ; i<12 ; i++){
+      for(int j=0; j<23;j++){
+        if(input.matrix[i][j]==id){
+          col[n]=i;
+          row[n]=j;
+          n++;
+        }
+      }
     }
-  }
-  n=0;
-  for(int i=0;i<tile_matrix_size*tile_matrix_size;i++){
-    tmp.table[n]= input[i];
-    n++;
-  }
-  return tmp;
-}
 
-tile to_Tile(int input[tile_matrix_size][tile_matrix_size]){
-  //a function to create a table from the tile matrix
-  tile tmp;
-  int n=0;
-  for(int i=0;i<tile_matrix_size;i++){
-    for(int j=0;j<tile_matrix_size;j++){
-      tmp.table[n]= input[i][j];
-      n++;
+    for(int i=0;i<size;i++){
+      pboard.matrix[col[i]][row[i]]=0;
     }
-  }
-  n=0;
-  for(int i=0;i<tile_matrix_size;i++){
-    for(int j=0;j<tile_matrix_size;j++){
-      tmp.matrix[i][j]=tmp.table[n];
-      n++;
-    }
+    pboard = player::set_Player_Hand(pboard.matrix);
+    return pboard;
   }
 
-  return tmp;
+
+  //**************************************************************
+
+  static Board do_Move(tile check,Board board,int x,int y,int color){
+    /* this function is similar to is_valid function */
+    /* but no verification are made when modifying the board */
+    /* always call this function after is_valid */
+    int n = 0;
+    int col[check.size];
+    int row[check.size];
+    for(int i=0 ; i<5 ; i++){
+      for(int j=0; j<5;j++){
+        if(check.matrix[i][j]!=0){
+          col[n]=i-2;
+          row[n]=j-2;
+          n++;
+        }
+      }
+    }
+
+    for(int i=0;i<check.size;i++){
+      board.matrix[x+col[i]][y+row[i]]=color;
+    }
+    board = Board::to_Board(board.matrix);
+    return board;
+  }
+
 };
-//**************************************************************
 
-
-Board to_Board(int input[]){
-  //a function to create a matrix from the map
-  Board tmp;
-  int n=0;
-  for(int i=0;i<main_board_size;i++){
-    for(int j=0;j<main_board_size;j++){
-      tmp.matrix[i][j]=input[n];
-      n++;
-    }
-  }
-  n=0;
-  for(int i=0;i<main_board_size;i++){
-    for(int j=0;j<main_board_size;j++){
-      tmp.table[n]= tmp.matrix[i][j];
-      n++;
-
-    }
-  }
-
-
-  return tmp;
-}
-
-
-
-//**************************************************************
-
-
-Board to_Board(int input[main_board_size][main_board_size]){
-  //a function to create a table from the map matrix
-  Board tmp;
-  int n=0;
-  for(int i=0;i<main_board_size;i++){
-    for(int j=0;j<main_board_size;j++){
-      tmp.table[n]= input[i][j];
-      n++;
-
-    }
-  }
-
-  n=0;
-  for(int i=0;i<main_board_size;i++){
-    for(int j=0;j<main_board_size;j++){
-      tmp.matrix[i][j]=tmp.table[n];
-      n++;
-    }
-  }
-  return tmp;
-}
-
-//**************************************************************
-
-
-playerHand set_Player_Hand(int input[12*23]){
-  //a function to create a table from the map matrix
-  playerHand tmp;
-  int n=0;
-  for(int i=0;i<12*23;i++){
-    tmp.table[i]= input[i];
-  }
-  for(int i=0;i<12;i++){
-    for(int j=0;j<23;j++){
-      tmp.matrix[i][j]=tmp.table[n];
-      n++;
-    }
-  }
-  return tmp;
-}
-
-playerHand set_Player_Hand(int input[12][23]){
-  //a function to create a table from the map matrix
-  playerHand tmp;
-  int n=0;
-  for(int i=0;i<12;i++){
-    for(int j=0;j<23;j++){
-      tmp.matrix[i][j]=input[i][j];
-    }
-  }
-  for(int i=0;i<12;i++){
-    for(int j=0;j<23;j++){
-      tmp.table[n]= tmp.matrix[i][j];
-      n++;
-    }
-  }
-  n=0;
-
-  return tmp;
-}
-
-
-
-tile set_Tile(int id,int input[],int size){
-  tile tmp;
-  tmp = to_Tile(input);
-  tmp.id=id;
-  tmp.size=size;
-  return tmp;
-}
-
-
-//**************************************************************
-
-
-int is_Equal(int input[main_board_size][main_board_size],int x,int y,int color){
-  return input[x][y]==color;
-}
-
-
-int is_Equal(int input[tile_matrix_size][tile_matrix_size],int x,int y,int color){
-  return input[x][y]==color;
-}
-
-//**************************************************************
-
-int is_Valid(tile check,Board lvl,int x,int y,int color){
-  //check if a tile placement location is empty (0)
-  //return true or false depending on the condition
-  int center =2;
-  int tmp[main_board_size][main_board_size];
-  int n = 0;
-  int col[check.size];
-  int row[check.size];
-  for(int i=0 ; i<tile_matrix_size ; i++){
-    for(int j=0; j<tile_matrix_size;j++){
-      if(check.matrix[i][j]!=0){
-        col[n]=i-center;
-        row[n]=j-center;
-        n++;
-      }
-    }
-  }
-
-  bool corner=0;
-
-  for(int i=0;i<check.size;i++){
-    for(int j=0;j<main_board_size;j++){
-      for(int m=0;m<main_board_size;m++){
-        tmp[j][m]=lvl.matrix[j][m];
-      }
-    }
-
-    if(!is_Equal(tmp,x+col[i],y+row[i],5 )&& !is_Equal(tmp,x+col[i],y+row[i],0 )){
-      return 0;
-
-    }
-    bool s1 = is_Equal(tmp,1+x+col[i],y+row[i],color);
-
-    bool s2 = is_Equal(tmp,x+col[i],1+y+row[i],color);
-
-    bool s3 = is_Equal(tmp,x+col[i]-1,y+row[i],color);
-
-    bool s4 = is_Equal(tmp,x+col[i],y+row[i]-1,color);
-
-
-    if(s1||s2||s3||s4){
-      return 0;
-    }
-
-
-    bool  c1 = is_Equal(tmp,1+x+col[i],1+y+row[i],color);
-    bool  c2 = is_Equal(tmp,x+col[i]-1,1+y+row[i],color);
-    bool  c3 = is_Equal(tmp,x+col[i]+1,y+row[i]-1,color);
-    bool  c4 = is_Equal(tmp,x+col[i]-1,y+row[i]-1,color);
-
-    if(c1||c2||c3||c4){
-      corner =1;
-    }
-  }
-
-  if(corner==1){
-    return 1;
-
-  }
-
-  return 0;
-}
-
-playerHand is_Valid(playerHand input,playerHand pboard,int x, int y,int size,int id){
-
-  int col[size];
-  int row[size];
-  int n=0;
-  for(int i=0 ; i<12 ; i++){
-    for(int j=0; j<23;j++){
-      if(input.matrix[i][j]==id){
-        col[n]=i;
-        row[n]=j;
-        n++;
-      }
-    }
-  }
-
-  for(int i=0;i<size;i++){
-    pboard.matrix[col[i]][row[i]]=0;
-  }
-  pboard = set_Player_Hand(pboard.matrix);
-  return pboard;
-}
-
-
-//**************************************************************
-
-Board do_Move(tile check,Board board,int x,int y,int color){
-  //place une piece
-  int n = 0;
-  int col[check.size];
-  int row[check.size];
-  for(int i=0 ; i<5 ; i++){
-    for(int j=0; j<5;j++){
-      if(check.matrix[i][j]!=0){
-        col[n]=i-2;
-        row[n]=j-2;
-        n++;
-      }
-    }
-  }
-
-  for(int i=0;i<check.size;i++){
-    board.matrix[x+col[i]][y+row[i]]=color;
-  }
-  board = to_Board(board.matrix);
-  return board;
-}
-
-
-player set_Player(int id,sf::Color color,int time,tile tiles[]){
-  player tmp;
-  tmp.id       =id;
-  tmp.color    = color;
-  tmp.score    =0;
-  tmp.Time.min =0;
-  tmp.Time.sec =0;
-
-  for(int i=0;i<total_number_of_tiles;i++){
-
-    tmp.Have[i]=1;
-
-  }
-
-  for(int i=0;i<total_number_of_tiles;i++){
-
-    tmp.Hand[i]=set_Tile(tiles[i].id,tiles[i].table,tiles[i].size);
-
-  }
-
-  tmp.pboard   =set_Player_Hand(tilesTableWithCenter);
-  tmp.canPlay  =true;
-  tmp.bot      =false;
-  tmp.showHelp = false;
-  return tmp;
-}
-
-tile flip_Matrix(tile input){
-
-
-  for(int i=0;i<5;i++){
-    int tmp;
-    tmp                =input.matrix[i][0];
-    input.matrix[i][0] =input.matrix[i][4];
-    input.matrix[i][4] =tmp;
-    tmp                = input.matrix[i][1];
-    input.matrix[i][1] =input.matrix[i][3];
-    input.matrix[i][3] =tmp;
-  }
-  return input= to_Tile(input.matrix);
-}
 //**************************************************************
 
 int main() {
@@ -672,27 +711,34 @@ int main() {
 
   //putting the tiles into one array for easy access
   tile tiles[total_number_of_tiles];
-  tiles[0]=set_Tile(1,t1,1);
-  tiles[1]=set_Tile(2,t2,2);
-  tiles[2]=set_Tile(3,t3,3);
-  tiles[3]=set_Tile(4,t4,3);
-  tiles[4]=set_Tile(5,t5,4);
-  tiles[5]=set_Tile(6,t6,4);
-  tiles[6]=set_Tile(7,t7,4);
-  tiles[7]=set_Tile(8,t8,4);
-  tiles[8]=set_Tile(9,t9,4);
-  tiles[9]=set_Tile(10,t10,5);
-  tiles[10]=set_Tile(11,t11,5);
-  tiles[11]=set_Tile(12,t12,5);
-  tiles[12]=set_Tile(13,t13,5);
-  tiles[13]=set_Tile(14,t14,5);
-  tiles[14]=set_Tile(15,t15,5);
-  tiles[15]=set_Tile(16,t16,5);
-  tiles[16]=set_Tile(17,t17,5);
-  tiles[17]=set_Tile(18,t18,5);
-  tiles[18]=set_Tile(19,t19,5);
-  tiles[19]=set_Tile(20,t20,5);
-  tiles[20]=set_Tile(21,t21,5);
+  tiles[0]=tile::set_Tile(1,t1,1);
+  tiles[1]=tile::set_Tile(2,t2,2);
+  tiles[2]=tile::set_Tile(3,t3,3);
+  tiles[3]=tile::set_Tile(4,t4,3);
+  tiles[4]=tile::set_Tile(5,t5,4);
+  tiles[5]=tile::set_Tile(6,t6,4);
+  tiles[6]=tile::set_Tile(7,t7,4);
+  tiles[7]=tile::set_Tile(8,t8,4);
+  tiles[8]=tile::set_Tile(9,t9,4);
+  tiles[9]=tile::set_Tile(10,t10,5);
+  tiles[10]=tile::set_Tile(11,t11,5);
+  tiles[11]=tile::set_Tile(12,t12,5);
+  tiles[12]=tile::set_Tile(13,t13,5);
+  tiles[13]=tile::set_Tile(14,t14,5);
+  tiles[14]=tile::set_Tile(15,t15,5);
+  tiles[15]=tile::set_Tile(16,t16,5);
+  tiles[16]=tile::set_Tile(17,t17,5);
+  tiles[17]=tile::set_Tile(18,t18,5);
+  tiles[18]=tile::set_Tile(19,t19,5);
+  tiles[19]=tile::set_Tile(20,t20,5);
+  tiles[20]=tile::set_Tile(21,t21,5);
+  //initialising players
+  player players[4];
+  players[0] = player::set_Player(1,sf::Color::Red,time_for_each_player,tiles);
+  players[1] = player::set_Player(2,sf::Color::Blue,time_for_each_player,tiles);
+  players[2] = player::set_Player(3,sf::Color::Green,time_for_each_player,tiles);
+  players[3] = player::set_Player(4,sf::Color::Yellow,time_for_each_player,tiles);
+
 
   sf::Font font;
 
@@ -701,7 +747,8 @@ int main() {
     cout << "cant load the font file  : res/RobotoMono-Regular.ttf";
 
   }
-
+//idp is used to define which tile the player is curently using
+//everything related to tile selecttion is controled by this variable
   int idp[4];
 
   for(int i=0;i<4;i++){
@@ -717,34 +764,37 @@ int main() {
 
 
   /**********************************************************************************/
-  //Initialisation des variables concernantes les zones des joueurs
+  /*initialising player areas ,each player has a color (reb , blue ,green , yellow)*/
+  /*in the game there are 4 areas ,everything thing else in the game is positioned relative to */
+  /*the position on player areas so they are defined manually*/
+
   Rectangle pAreas [4] ;
+  //red
   pAreas[0].x      = out_line_size;
   pAreas[0].y      = out_line_size;
   pAreas[0].width  = main_board_position_x-(2*out_line_size);
   pAreas[0].height = window_height/2-out_line_size;
   pAreas[0].color  = Color(250, 177, 160,255);
-
+//blue
   pAreas[1].x      = out_line_size;
   pAreas[1].y      = window_height/2 +(2*out_line_size);
   pAreas[1].width  = main_board_position_x-(2*out_line_size);
   pAreas[1].height = window_height/2-3*out_line_size;
   pAreas[1].color  = Color(116, 185, 255,255);
-
+//green
   pAreas[2].x      = main_board_position_x + ( main_board_size* main_board_tile_width)+out_line_size ;
   pAreas[2].y      = out_line_size;
   pAreas[2].width  = main_board_position_x-(2*out_line_size);
   pAreas[2].height = window_height/2-out_line_size;
   pAreas[2].color  = Color(85, 239, 196,255);
-
-
+//yellow
   pAreas[3].x      = main_board_position_x + ( main_board_size* main_board_tile_width)+out_line_size;
   pAreas[3].y      = window_height/2+(2*out_line_size);
   pAreas[3].width  = main_board_position_x-(2*out_line_size);
   pAreas[3].height = window_height/2-3*out_line_size;//multiply by 3 because of the middle outline
   pAreas[3].color  = Color(255, 234, 167,255);
 
-
+/*translating the information to  a rectangleShape*/
   RectangleShape pAreasShape[4];
 
   for(int i=0 ; i <4;i++){
@@ -755,13 +805,7 @@ int main() {
   }
 
   /**********************************************************************************/
-
-  player players[4];
-  players[0] = set_Player(1,sf::Color::Red,time_for_each_player,tiles);
-  players[1] = set_Player(2,sf::Color::Blue,time_for_each_player,tiles);
-  players[2] = set_Player(3,sf::Color::Green,time_for_each_player,tiles);
-  players[3] = set_Player(4,sf::Color::Yellow,time_for_each_player,tiles);
-
+/*definning the area to display the pieces avalible to the player*/
   for(int i = 0 ; i < 4; i++){
     players[i].pos.x = pAreas[i].x + pAreas[i].width/2-( player_board_tile_width* player_board_matrix_height)/2;
     players[i].pos.y = pAreas[i].y + pAreas[i].height - player_board_tile_height* player_board_tile_height -overflowcorrect;
@@ -769,8 +813,8 @@ int main() {
   }
 
   /**********************************************************************************/
-
-
+/*header area(the area above the board)*/
+/*defined to make placing objects in this area easier*/
   Rectangle Header;
 
   Header.x      = main_board_position_x+out_line_size;
@@ -787,7 +831,8 @@ int main() {
   HeaderS.setFillColor(Header.color);
 
   /**********************************************************************************/
-
+  /*footer area ( the area under the board)*/
+  /*defined to make placing objects in this area easier*/
 
   Rectangle Footer;
 
@@ -808,6 +853,13 @@ int main() {
 
   /********************************************************************************************/
 
+  /* in the next section we will define all the butttons in the game                               */
+  /* all positions are relative to other obbjects                         */
+  /* a button is a rectangle and it's defined using Rectangle structure   */
+  /* then it's translated to a sfml RectangleShape and assigned a texture */
+  /* buttons name represents it's function                                */
+
+  /********************************************************************************************/
   Rectangle skip_turn_buttonR;
 
   skip_turn_buttonR.width   = 130;
@@ -998,9 +1050,6 @@ int main() {
 
 
 
-
-  /********************************************************************************************/
-
   /********************************************************************************************/
 
 
@@ -1102,7 +1151,8 @@ int main() {
 
 
   /********************************************************************************************/
-
+  /* definning the text in pAreas                         */
+  /* the position is relative to pAreas size and position */
   sf::Text PlayerName[4];
 
   for(int i = 0 ; i < 4 ; i++){
@@ -1117,16 +1167,20 @@ int main() {
   }
 
   /*********************************************************************************************/
+  /* help off/on button (help button)  */
+  /* used to stop/start showing help   */
+  /* two textures for one button       */
+  /* we only change the texture to show any changes */
+
   sf::Texture T_helpoff;
   if (!T_helpoff.loadFromFile("res/helpoff.png"))
   {
-    cout << "cant load the Texture file associated to 2 player button  : res/2player.png";
+    cout << "cant load the Texture file associated to helpbutton  : res/helpoff.png";
   }
-
   sf::Texture T_helpon;
   if (!T_helpon.loadFromFile("res/helpon.png"))
   {
-    cout << "cant load the Texture file associated to 2 player button  : res/2player.png";
+    cout << "cant load the Texture file associated to helpbutton  : res/helpon.png";
   }
 
 
@@ -1134,19 +1188,19 @@ int main() {
 
   Rectangle playerHelp[4];
   for(int i = 0 ; i < 4; i++){
-  playerHelp[i].width    = 32;
-  playerHelp[i].height   = 32;
-  playerHelp[i].x        = pAreas[i].x+pAreas[i].width - playerHelp[i].width;
-  playerHelp[i].y        = pAreas[i].y ;
+    playerHelp[i].width    = 32;
+    playerHelp[i].height   = 32;
+    playerHelp[i].x        = pAreas[i].x+pAreas[i].width - playerHelp[i].width;
+    playerHelp[i].y        = pAreas[i].y ;
 
 
 
-  playerHelpRS[i].setSize(Vector2f(playerHelp[i].width,playerHelp[i].height));
-  playerHelpRS[i].setPosition(playerHelp[i].x,playerHelp[i].y);
-  playerHelpRS[i].setTexture(&T_helpoff);
-}
+    playerHelpRS[i].setSize(Vector2f(playerHelp[i].width,playerHelp[i].height));
+    playerHelpRS[i].setPosition(playerHelp[i].x,playerHelp[i].y);
+    playerHelpRS[i].setTexture(&T_helpoff);
+  }
   /********************************************************************************************/
-
+  /* show player score under his name */
   sf::Text player_score_display[4];
 
   for(int i=0 ; i<4;i++){
@@ -1161,6 +1215,7 @@ int main() {
   }
 
   /********************************************************************************************/
+  /* show player time used under his name */
 
   sf::Text player_clock_display[4];
 
@@ -1177,7 +1232,7 @@ int main() {
 
   /********************************************************************************************/
 
-
+/* showing game over text on game over screen */
   sf::Text GameOverText;
 
   GameOverText.setFont(font);
@@ -1188,6 +1243,7 @@ int main() {
   GameOverText.setPosition(Vector2f(window_width/2 - GameOverText.getLocalBounds().width/2,window_height/4));
 
   /********************************************************************************************/
+  /* showing winner text on game over screen */
 
   sf::Text DisplayWinner;
 
@@ -1199,6 +1255,9 @@ int main() {
   DisplayWinner.setPosition(Vector2f(window_width/2 - DisplayWinner.getLocalBounds().width/2,GameOverText.getPosition().y+GameOverText.getGlobalBounds().height));
 
   /********************************************************************************************/
+  /* used to display each players score*/
+  /* each time we multiply the position by a variable i */
+  /* to make sure that the distance stays the same */
 
   int add_to_pos = 0;//used to display player score correctly
 
@@ -1215,7 +1274,7 @@ int main() {
   }
 
   /********************************************************************************************/
-
+/* background */
 
   sf::Texture T_background_texture;
 
@@ -1235,14 +1294,13 @@ int main() {
   background_texture.setTexture(&T_background_texture);
 
   /********************************************************************************************/
-  //loading sounds
-
+  /* showing the board after game over */
 
   Rectangle show_BoardR;
 
   show_BoardR.width   = 162;
   show_BoardR.height  = 60;
-  show_BoardR.x       = window_width/2 - show_BoardR.width/2;
+  show_BoardR.x       = window_width/4 - show_BoardR.width/2;
   show_BoardR.y       = GameOverText.getLocalBounds().left + 10;
 
   sf::Texture T_show_Board;
@@ -1258,8 +1316,33 @@ int main() {
   show_BoardRS.setPosition(show_BoardR.x,show_BoardR.y);
   show_BoardRS.setTexture(&T_show_Board);
 
-/***************************************************************************/
+  /********************************************************************************************/
+  /* used to get back to the main menu */
 
+    Rectangle go_to_mainmenuR;
+
+    go_to_mainmenuR.width   = 162;
+    go_to_mainmenuR.height  = 60;
+    go_to_mainmenuR.x       =  window_width/4 + window_width/2 - go_to_mainmenuR.width/2;
+    go_to_mainmenuR.y       = GameOverText.getLocalBounds().left + 10;;
+
+    sf::Texture T_show_mainmenu;
+
+    if (!T_show_mainmenu.loadFromFile("res/mainmenu.png"))
+    {
+      cout << "cant load the Texture file associated to  mainmenu   : res/mainmenu.png";
+    }
+
+    RectangleShape go_to_mainmenuRS;
+
+    go_to_mainmenuRS.setSize(Vector2f(go_to_mainmenuR.width,go_to_mainmenuR.height));
+    go_to_mainmenuRS.setPosition(go_to_mainmenuR.x,go_to_mainmenuR.y);
+    go_to_mainmenuRS.setTexture(&T_show_mainmenu);
+
+
+
+  /***************************************************************************/
+/* loading sounds */
   SoundBuffer placebuffer;
   if(!placebuffer.loadFromFile("res/place.wav"))
   {
@@ -1308,12 +1391,15 @@ int main() {
 
 
   //setting up game variables
-  bool start_game       = false;
-  bool bot_do_rotate    = false;
-  bool show_Board = false;
+
   Time times[4];
 
   sftools::Chronometer chrono[4];
+  /********************************************************************************************/
+
+  bool start_game       = false;
+  bool bot_do_rotate    = false;
+  bool show_Board = false;
 
   int current_player    = 0;
   bool playwinsound     = true;
@@ -1322,24 +1408,27 @@ int main() {
   int change_piece      = 0;
   int change_piece_total_tests=0;
   int current_search_number=0;
-  /********************************************************************************************/
+  bool restart_game= false;
 
-
-  Board GameBoard     = to_Board(iniMap);
-  playerHand testFull = set_Player_Hand(tilesTableWithEachPiece);
+  Board GameBoard     = Board::to_Board(iniMap);
+  playerHand testFull = player::set_Player_Hand(tilesTableWithEachPiece);
 
   /***************************************************************************************/
+  /* there is only 4 possible positions */
+  /* to make the code more reliable and more optimised */
+  /* we check all positions when placing the piece using these variables */
   int positionx[] = {1,1,-1,-1};
   int positiony[] = {1,-1,-1,1};
+  /* used to store position avalible for the bot */
   int oktoPlacex[15] ;
   int oktoPlacey[15] ;
   while (window.isOpen()) {
-
-
+    /* making sure windows is not resizable */
     window_width  = window.getSize().x;
     window_height = window.getSize().y;
 
-
+/* making players turn more visible */
+/* set white lines with red lines */
     for(int i = 0 ; i < 4 ; i++){
       if( i == current_player &&players[current_player].canPlay){
         pAreasShape[i].setOutlineColor(sf::Color::Red);
@@ -1351,27 +1440,29 @@ int main() {
       }
     }
 
-
-    for ( int i =0; i<5;i++){
+/* initialising avalable places to bot to 0 each time we change player */
+    for ( int i =0; i<15;i++){
       oktoPlacex[i] = 0;
-      oktoPlacey[i] =  0;
+      oktoPlacey[i] = 0;
 
     }
 
-/**********************************************************************************************************/
+    /**********************************************************************************************************/
+    /* if the player is a bot */
     if(players[current_player].canPlay&&players[current_player].bot&&start_game){
-      std::this_thread::sleep_for(std::chrono::milliseconds(200));
+      std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
       chrono[current_player].resume();
 
       current_search_number=0;
 
       bot_do_rotate=false;
-     for(int i = 1 ; i < main_board_size-1 ; i++){
+      /* calculating postions avalible to bot player */
+      for(int i = 1 ; i < main_board_size-1 ; i++){
         for(int j = 1 ; j < main_board_size-1 ; j++ ){
           if(current_search_number<15){
             for(int p = 0 ; p<4 ;p++){
-              if( is_Valid( players[current_player].Hand[idp[current_player]-1] , GameBoard , i+positionx[p] ,j+positiony[p], players[current_player].id)){
+              if( GamePlay::is_Valid( players[current_player].Hand[idp[current_player]-1] , GameBoard , i+positionx[p] ,j+positiony[p], players[current_player].id)){
                 oktoPlacex[current_search_number] =  i+positionx[p];
                 oktoPlacey[current_search_number] =  j+positiony[p];
                 current_search_number++;
@@ -1380,14 +1471,15 @@ int main() {
           }
         }
       }
+      /*chosing a postion */
       int testingtest = (int)(Math::random()*(current_search_number+1));
       for( int i = 1 ; i < main_board_size - 1 ; i++){
         for (int j = 1 ; j < main_board_size - 1 ; j++){
-          if( is_Valid(players[current_player].Hand[idp[current_player]-1] , GameBoard ,oktoPlacex[testingtest] ,oktoPlacey[testingtest], players[current_player].id)){
-change_piece                    = 0;
-            GameBoard                                         = do_Move(players[current_player].Hand[idp[current_player]-1],GameBoard,oktoPlacex[testingtest]  ,oktoPlacey[testingtest],players[current_player].id);
+          if( GamePlay::is_Valid(players[current_player].Hand[idp[current_player]-1] , GameBoard ,oktoPlacex[testingtest] ,oktoPlacey[testingtest], players[current_player].id)){
+            change_piece                    = 0;
+            GameBoard                                         = GamePlay::do_Move(players[current_player].Hand[idp[current_player]-1],GameBoard,oktoPlacex[testingtest]  ,oktoPlacey[testingtest],players[current_player].id);
 
-            players[current_player].pboard                    = is_Valid(testFull, players[current_player].pboard,oktoPlacex[testingtest]  ,oktoPlacey[testingtest],players[current_player].Hand[idp[current_player]-1].size,idp[current_player]);
+            players[current_player].pboard                    = GamePlay::is_Valid(testFull, players[current_player].pboard,oktoPlacex[testingtest]  ,oktoPlacey[testingtest],players[current_player].Hand[idp[current_player]-1].size,idp[current_player]);
             players[current_player].score                     = players[current_player].score+tiles[idp[current_player]-1].size;
             players[current_player].Have[idp[current_player]] = 0;
             chrono[current_player].pause();
@@ -1431,22 +1523,26 @@ change_piece                    = 0;
 
         }
       }
-
-      if( !bot_do_rotate && count_rotation <= 4){
+      /* rotate */
+      if( !bot_do_rotate && count_rotation < 4){
 
         count_rotation++;
         rotatesound.play();
-        players[current_player].Hand[idp[current_player]-1] = rotate_Clock_Wise(players[current_player].Hand[idp[current_player]-1]);
-        players[current_player].Hand[idp[current_player]-1] = to_Tile(players[current_player].Hand[idp[current_player]-1].matrix);
+        players[current_player].Hand[idp[current_player]-1] = tile::rotate_Clock_Wise(players[current_player].Hand[idp[current_player]-1]);
+        players[current_player].Hand[idp[current_player]-1] = tile::to_Tile(players[current_player].Hand[idp[current_player]-1].matrix);
 
-      }if(count_rotation > 4 && flip_counter == 0){
+      }
+      /* flip */
+      /* after 4 rotations we flip */
+      if(count_rotation >= 4 && flip_counter == 0){
         count_rotation                                      = 0;
         flip_counter++;
-        players[current_player].Hand[idp[current_player]-1] = flip_Matrix(players[current_player].Hand[idp[current_player]-1]);
-        players[current_player].Hand[idp[current_player]-1] = to_Tile(players[current_player].Hand[idp[current_player]-1].matrix);
+        players[current_player].Hand[idp[current_player]-1] = tile::flip_Matrix(players[current_player].Hand[idp[current_player]-1]);
+        players[current_player].Hand[idp[current_player]-1] = tile::to_Tile(players[current_player].Hand[idp[current_player]-1].matrix);
         flipsound.play();
       }
-
+      /* change tile */
+      /* after a flip and 4 rotations we change the tile if we can't place it*/
       if(flip_counter != 0 ){
         flip_counter                                      = 0;
         change_piece++;
@@ -1475,13 +1571,14 @@ change_piece                    = 0;
           }
         }
       }
-change_piece_total_tests=0;
+      /*skip trun*/
+      /* after 4 rotations a flip and 4 rotations and a tile change we can't place we skip turn */
+      change_piece_total_tests=0;
       for(int i=0 ; i < total_number_of_tiles ;i++){
         if(players[current_player].Have[i] !=0){
           change_piece_total_tests++;
         }
       }
-
       if(change_piece>change_piece_total_tests&&!bot_do_rotate){
         change_piece_total_tests        = 0;
         change_piece                    = 0;
@@ -1503,31 +1600,35 @@ change_piece_total_tests=0;
         current_player = 0;
       }
     }
+
+
+    /* used to reset the board after a turn (for player help) */
     for(int i = 1 ; i < main_board_size-1 ; i++ ){
       for(int j = 1 ; j < main_board_size-1 ; j++){
         if(GameBoard.matrix[i][j] == 5){
           GameBoard.matrix[i][j]  = 0;
-          GameBoard               = to_Board(GameBoard.matrix);
 
         }
       }
     }
 
-/***************************************************************************************************/
-if(!players[current_player].bot&&players[current_player].canPlay&&players[current_player].showHelp){
-  for(int p = 0 ; p < 4; p++ ){
-    for(int i = 1;i<23;i++){
-      for(int j = 1;j<23;j++){
-        if(is_Valid(players[current_player].Hand[idp[current_player]-1],GameBoard,i+positionx[p],j+positionx[p],players[current_player].id)){
-          GameBoard.matrix[i+positionx[p]][j+positionx[p]] = 5;
-          GameBoard                  = to_Board(GameBoard.matrix);
+    GameBoard               = Board::to_Board(GameBoard.matrix);
 
+    /***************************************************************************************************/
+    if(!players[current_player].bot&&players[current_player].canPlay&&players[current_player].showHelp){
+      for(int p = 0 ; p < 4; p++ ){
+        for(int i = 1;i<23;i++){
+          for(int j = 1;j<23;j++){
+            if(GamePlay::is_Valid(players[current_player].Hand[idp[current_player]-1],GameBoard,i+positionx[p],j+positionx[p],players[current_player].id)){
+              GameBoard.matrix[i+positionx[p]][j+positionx[p]] = 5;
+              GameBoard                  = Board::to_Board(GameBoard.matrix);
+
+            }
+          }
         }
       }
-     }
     }
-}
-/*****************************************************************************************************************/
+    /*****************************************************************************************************************/
     Event event;
     while (window.pollEvent(event)) {
 
@@ -1546,19 +1647,18 @@ if(!players[current_player].bot&&players[current_player].canPlay&&players[curren
       if (!players[current_player].mouse.load("res/ptiles60" +    std::to_string(current_player) +".png", sf::Vector2u( 20, 20), players[current_player].Hand[idp[current_player]-1].table, tile_matrix_size, tile_matrix_size,sf::Mouse::getPosition(window).x -((tile_matrix_size*20)/2),sf::Mouse::getPosition(window).y- ((tile_matrix_size*20)/2))) {
         cout << "cant load the Texture file associated to player tiles   : res/ptiles60x.png";
 
-        return -1;
       }
 
+      chrono[current_player].resume();
 
 
       if (event.type == sf::Event::MouseButtonPressed &&players[current_player].canPlay&&start_game&&!players[current_player].bot) {
-        chrono[current_player].resume();
 
         for(int i = 1 ; i< main_board_size-1 ; i++){
           for(int j = 1 ; j < main_board_size-1 ; j++){
-            if(is_Equal(GameBoard.matrix,i,j,5)){
+            if(GamePlay::GamePlay::is_Equal(GameBoard.matrix,i,j,5)){
               GameBoard.matrix[i][j] = 0;
-              GameBoard              = to_Board(GameBoard.matrix);
+              GameBoard              = Board::to_Board(GameBoard.matrix);
             }
           }
         }
@@ -1568,10 +1668,10 @@ if(!players[current_player].bot&&players[current_player].canPlay&&players[curren
           int transx = (MousPosx-main_board_position_x)/main_board_tile_width;
           int transy = (MousPosy-main_board_position_y)/main_board_tile_height;
 
-          if(is_Valid(players[current_player].Hand[idp[current_player]-1],GameBoard,transy,transx,players[current_player].id)){
+          if(GamePlay::is_Valid(players[current_player].Hand[idp[current_player]-1],GameBoard,transy,transx,players[current_player].id)){
 
-            GameBoard                                         = do_Move(players[current_player].Hand[idp[current_player]-1],GameBoard,transy,transx,players[current_player].id);
-            players[current_player].pboard                    = is_Valid(testFull, players[current_player].pboard,transy,transx,players[current_player].Hand[idp[current_player]-1].size,idp[current_player]);
+            GameBoard                                         = GamePlay::do_Move(players[current_player].Hand[idp[current_player]-1],GameBoard,transy,transx,players[current_player].id);
+            players[current_player].pboard                    = GamePlay::is_Valid(testFull, players[current_player].pboard,transy,transx,players[current_player].Hand[idp[current_player]-1].size,idp[current_player]);
             players[current_player].score                     = players[current_player].score+tiles[idp[current_player]-1].size;
             players[current_player].Have[idp[current_player]] = 0;
             chrono[current_player].pause();
@@ -1618,8 +1718,8 @@ if(!players[current_player].bot&&players[current_player].canPlay&&players[curren
         }
         if(MousPosx<rotate_Clock_WiseR.x + rotate_Clock_WiseR.width &&MousPosx>rotate_Clock_WiseR.x &&MousPosy<rotate_Clock_WiseR.y+rotate_Clock_WiseR.height&&MousPosy>rotate_Clock_WiseR.y){
 
-          players[current_player].Hand[idp[current_player]-1] = rotate_Clock_Wise(players[current_player].Hand[idp[current_player]-1]);
-          players[current_player].Hand[idp[current_player]-1] = to_Tile(players[current_player].Hand[idp[current_player]-1].matrix);
+          players[current_player].Hand[idp[current_player]-1] = tile::rotate_Clock_Wise(players[current_player].Hand[idp[current_player]-1]);
+          players[current_player].Hand[idp[current_player]-1] = tile::to_Tile(players[current_player].Hand[idp[current_player]-1].matrix);
           rotatesound.play();
 
         }
@@ -1637,8 +1737,8 @@ if(!players[current_player].bot&&players[current_player].canPlay&&players[curren
         }
         if(MousPosx<rotate_Counter_Clock_WiseR.x + rotate_Counter_Clock_WiseR.width &&MousPosx>rotate_Counter_Clock_WiseR.x &&MousPosy<rotate_Counter_Clock_WiseR.y+rotate_Counter_Clock_WiseR.height&&MousPosy>rotate_Counter_Clock_WiseR.y){
 
-          players[current_player].Hand[idp[current_player]-1] = rotate_Counter_Clock_Wise(players[current_player].Hand[idp[current_player]-1]);
-          players[current_player].Hand[idp[current_player]-1] = to_Tile(players[current_player].Hand[idp[current_player]-1].matrix);
+          players[current_player].Hand[idp[current_player]-1] = tile::rotate_Counter_Clock_Wise(players[current_player].Hand[idp[current_player]-1]);
+          players[current_player].Hand[idp[current_player]-1] = tile::to_Tile(players[current_player].Hand[idp[current_player]-1].matrix);
           rotatesound.play();
 
         }
@@ -1650,8 +1750,8 @@ if(!players[current_player].bot&&players[current_player].canPlay&&players[curren
         }
         if(MousPosx<flip_tile_buttonR.x + flip_tile_buttonR.width &&MousPosx>flip_tile_buttonR.x &&MousPosy<flip_tile_buttonR.y+flip_tile_buttonR.height&&MousPosy>flip_tile_buttonR.y){
 
-          players[current_player].Hand[idp[current_player]-1] = flip_Matrix(players[current_player].Hand[idp[current_player]-1]);
-          players[current_player].Hand[idp[current_player]-1] = to_Tile(players[current_player].Hand[idp[current_player]-1].matrix);
+          players[current_player].Hand[idp[current_player]-1] = tile::flip_Matrix(players[current_player].Hand[idp[current_player]-1]);
+          players[current_player].Hand[idp[current_player]-1] = tile::to_Tile(players[current_player].Hand[idp[current_player]-1].matrix);
           flipsound.play();
 
         }
@@ -1732,7 +1832,7 @@ if(!players[current_player].bot&&players[current_player].canPlay&&players[curren
         }
       }
 
-      if((!players[0].canPlay||!players[1].canPlay||!players[2].canPlay||!players[3].canPlay)&&(!show_Board)){
+      if((!players[0].canPlay&&!players[1].canPlay&&!players[2].canPlay&&!players[3].canPlay)&&(!show_Board)){
 
         int MousPosx = (int)  sf::Mouse::getPosition(window).x;
         int MousPosy = (int)  sf::Mouse::getPosition(window).y;
@@ -1740,16 +1840,18 @@ if(!players[current_player].bot&&players[current_player].canPlay&&players[curren
         if (event.type == sf::Event::MouseButtonPressed) {
 
           if(MousPosx<show_BoardR.x + show_BoardR.width &&MousPosx>show_BoardR.x &&MousPosy<show_BoardR.y+show_BoardR.height&&MousPosy>show_BoardR.y){
+            show_Board=true;
 
-          show_Board=true;
-
+          }
+          if(MousPosx<go_to_mainmenuR.x + go_to_mainmenuR.width &&MousPosx>go_to_mainmenuR.x &&MousPosy<go_to_mainmenuR.y+go_to_mainmenuR.height&&MousPosy>go_to_mainmenuR.y){
+            restart_game=true;
           }
 
         }
       }
 
 
-}
+    }
 
 
 
@@ -1815,6 +1917,11 @@ if(!players[current_player].bot&&players[current_player].canPlay&&players[curren
       cout << "cant load the Texture file associated to main board load  : res/tileset20m.png";
     }
     for (int i=0;i<4;i++){
+      for(int i = 0 ; i < 4; i++){
+        players[i].pos.x = pAreas[i].x + pAreas[i].width/2-( player_board_tile_width* player_board_matrix_height)/2;
+        players[i].pos.y = pAreas[i].y + pAreas[i].height - player_board_tile_height* player_board_tile_height -overflowcorrect;
+
+      }
       if (!players[i].FullHand.load("res/ptiles36.png", sf::Vector2u( player_board_tile_width, player_board_tile_height), players[i].pboard.table,  player_board_matrix_height,  player_board_matrix_width, players[i].pos.x,players[i].pos.y)){
         cout << "cant load the Texture file associated to player tiles   : res/ptiles36.png";
       }
@@ -1849,70 +1956,100 @@ if(!players[current_player].bot&&players[current_player].canPlay&&players[curren
           window.draw(playerHelpRS[i]);
         }
         if(!players[current_player].bot&&players[current_player].canPlay){
-        if(sf::Mouse::getPosition(window).x >main_board_position_x&&sf::Mouse::getPosition(window).x <main_board_position_x+main_board_width&&sf::Mouse::getPosition(window).y >main_board_position_y&&sf::Mouse::getPosition(window).y <main_board_position_y+main_board_height){
-          window.setMouseCursorVisible(false);
-          window.draw(players[current_player].mouse);
+          if(sf::Mouse::getPosition(window).x >main_board_position_x&&sf::Mouse::getPosition(window).x <main_board_position_x+main_board_width&&sf::Mouse::getPosition(window).y >main_board_position_y&&sf::Mouse::getPosition(window).y <main_board_position_y+main_board_height){
+            window.setMouseCursorVisible(false);
+            window.draw(players[current_player].mouse);
+          }else{
+            window.setMouseCursorVisible(true);
+          }}
+          window.draw(title);
+          window.display();
+
         }else{
-          window.setMouseCursorVisible(true);
-        }}
-        window.draw(title);
-        window.display();
+          for(int i=0; i<4 ; i++)
+          {        chrono[i].pause();
+          }
+
+          window.clear(BgColor);
+
+          window.draw(background_texture);
+
+
+          int max=players[0].score;
+          int winner_id=players[0].id;
+          for(int i=1;i<4;i++){
+            if(players[i].score>max){
+              max =players[i].score;
+              winner_id=players[i].id;
+            }
+          }
+
+          for(int i=0;i<4;i++){
+            GameOverScoreDisplay[i].setString("Player " + to_string(players[i].id) + " Score : " + to_string(players[i].score));
+            window.draw(GameOverScoreDisplay[i]);
+          }
+          DisplayWinner.setString("player " +to_string(winner_id)+" wins");
+          DisplayWinner.setColor(players[winner_id-1].color);
+          window.draw(DisplayWinner);
+
+          window.draw(GameOverText);
+          window.draw(show_BoardRS);
+          window.draw(go_to_mainmenuRS);
+
+
+
+          if(restart_game){
+            restart_game = false;
+            start_game       = false;
+            bot_do_rotate    = false;
+            show_Board = false;
+
+            current_player    = 0;
+            playwinsound     = true;
+            count_rotation    = 0;
+            flip_counter      = 0;
+            change_piece      = 0;
+            change_piece_total_tests=0;
+            current_search_number=0;
+
+
+            for(int i = 0 ; i < 4; i++){
+              idp[i]=21;
+              chrono[current_player].reset();
+              players[current_player].Time.sec=0;
+              players[current_player].Time.min=0;
+            }
+            GameBoard     = Board::to_Board(iniMap);
+            players[0] = player::set_Player(1,sf::Color::Red,time_for_each_player,tiles);
+            players[1] = player::set_Player(2,sf::Color::Blue,time_for_each_player,tiles);
+            players[2] = player::set_Player(3,sf::Color::Green,time_for_each_player,tiles);
+            players[3] = player::set_Player(4,sf::Color::Yellow,time_for_each_player,tiles);
+          }
+
+
+          window.display();
+        }
 
       }else{
-        for(int i=0; i<4 ; i++)
-      {        chrono[i].pause();
-      }
+
+
 
         window.clear(BgColor);
-
         window.draw(background_texture);
+        window.draw(title);
 
+        window.draw(start_game_buttonRS);
+        window.draw(two_players_buttonRS);
+        window.draw(three_players_buttonRS);
+        window.draw(four_players_buttonRS);
 
-        int max=players[0].score;
-        int winner_id=players[0].id;
-        for(int i=1;i<4;i++){
-          if(players[i].score>max){
-            max =players[i].score;
-            winner_id=players[i].id;
-          }
-        }
-        if (playwinsound){
-          winsound.play();
-          playwinsound=false;
-        }
-        for(int i=0;i<4;i++){
-          GameOverScoreDisplay[i].setString("Player " + to_string(players[i].id) + " Score : " + to_string(players[i].score));
-          window.draw(GameOverScoreDisplay[i]);
-        }
-        DisplayWinner.setString("player " +to_string(winner_id)+" wins");
-        DisplayWinner.setColor(players[winner_id-1].color);
-        window.draw(DisplayWinner);
-
-        window.draw(GameOverText);
-       window.draw(show_BoardRS);
+        window.draw(two_bot_players_buttonRS);
+        window.draw(three_bot_players_buttonRS);
+        window.draw(four_bot_players_buttonRS);
         window.display();
+
       }
-
-    }else{
-
-
-
-      window.clear(BgColor);
-      window.draw(background_texture);
-      window.draw(title);
-
-      window.draw(start_game_buttonRS);
-      window.draw(two_players_buttonRS);
-      window.draw(three_players_buttonRS);
-      window.draw(four_players_buttonRS);
-
-      window.draw(two_bot_players_buttonRS);
-      window.draw(three_bot_players_buttonRS);
-      window.draw(four_bot_players_buttonRS);
-      window.display();
-
     }
-  }
 
-  return 0;
-}
+    return 0;
+  }
